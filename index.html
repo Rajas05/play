@@ -674,7 +674,7 @@ add({id:'inbox',icon:'inbox',name:'Monday, 9 AM',area:'Team ops',mins:'30 sec',
  end(won){const secs=(performance.now()-this.t0)/1000;
   reveal(this,{result:won?'win':this.routed>=8?'close':'lose',kicker:won?`Inbox zero in ${fmtT(secs)} · best combo ×${this.best} · ${this.wrong} bounced`:`The queue hit 8 · ${this.routed} of 12 routed`,
    line:won?'Twelve escalations, each to the team that owns it, before the queue got out of hand.':'The queue won this time. Mondays usually try.',
-   story:'At Pattern I gave every type of problem a clear owner on my team and built a tool that files tasks straight to them in Asana. Escalations dropped by more than half while the team grew from 12 to 17.',
+   story:'At Pattern I gave every type of problem a clear owner on my team, and built a brand task tracker that gave the team its first shared view of open work across all brands. Escalations dropped by more than half while the team grew from 12 to 17.',
    stats:[['r','Routed',this.routed+' / 12',won?'good':'bad'],['b','Best combo','×'+this.best,'hot'],['w','Bounced',this.wrong]]});},
  stop(){clearTimeout(this.sp);}
 });
