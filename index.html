@@ -57,7 +57,7 @@ h1{font-family:var(--display);font-weight:850;font-size:clamp(48px,8vw,118px);li
 h1 span{display:block}
 h1 .tape{background:var(--tape);color:var(--on-tape);padding:0 .08em;width:max-content;max-width:100%}
 .intro{margin:0 0 18px;max-width:44ch;font-size:17px}
-.score{display:flex;gap:22px;flex-wrap:wrap;border-top:2px solid var(--ink);padding-top:12px}
+.score{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-end;border-top:2px solid var(--ink);padding-top:12px}
 .score div{display:flex;flex-direction:column}
 .score span{color:var(--muted)}
 .score b{font-family:var(--display);font-variation-settings:"wdth" 85;font-weight:800;font-size:30px;line-height:1.05}
@@ -278,45 +278,80 @@ h1 .tape{background:var(--tape);color:var(--on-tape);padding:0 .08em;width:max-c
 @keyframes pop{from{transform:scale(.3)}}
 @media (max-width:820px){.plates{grid-template-columns:repeat(3,minmax(0,1fr))}.plate .stick{height:14px}}
 
-/* 6. Grow the market */
-.mkwrap{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:14px}
-.emap{position:relative;aspect-ratio:16/11;border-radius:10px;background:var(--scr2);border:1px solid var(--sline);overflow:hidden}
-.emap canvas{position:absolute;inset:0;width:100%;height:100%}
-.mb{position:absolute;translate:-50% -50%;border-radius:50%;background:color-mix(in srgb,var(--mc) 20%,transparent);border:3px solid var(--mc);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:width .3s,height .3s,box-shadow .2s;text-align:center;min-width:72px;min-height:72px;cursor:pointer;color:var(--sink);padding:0}
-.mb:hover{box-shadow:0 0 0 6px color-mix(in srgb,var(--mc) 25%,transparent)}
-.mb b{font-family:var(--display);font-variation-settings:"wdth" 85;font-weight:900;font-size:clamp(16px,2.2vw,26px);line-height:1}
-.mb span{font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums}
-.mb .hrs{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap;justify-content:center;max-width:84px}
-.mb .hrs i{width:9px;height:9px;background:var(--tape);border-radius:2px}
-.minus{position:absolute;width:30px;height:30px;border-radius:50%;border:1px solid var(--sline);background:var(--scr);color:var(--sink);cursor:pointer;font-family:var(--mono);font-size:16px;line-height:1;padding:0;z-index:3;translate:-50% -50%}
-.mb .ev{position:absolute;top:calc(100% + 4px);font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:3px;white-space:nowrap}
-.mb .ev.up{background:var(--sgood);color:#04140c}.mb .ev.dn{background:var(--sbad);color:#1a0603}
-.tray{background:var(--scr2);border:1px dashed var(--sline);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px}
-.hleft{display:flex;flex-wrap:wrap;gap:5px}
-.hleft i{width:18px;height:18px;border-radius:4px;background:var(--tape)}
-.hleft i.used{background:var(--scr3)}
+/* 6. Market race */
+.race{display:flex;flex-direction:column;gap:10px}
+.rnews{display:flex;align-items:center;gap:12px;min-height:44px;background:var(--scr2);border:1px solid var(--sline);border-radius:8px;padding:8px 12px;font-size:14px}
+.rnews b{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--tape);text-transform:uppercase;white-space:nowrap}
+.lanes{display:flex;flex-direction:column;gap:10px}
+.lane{position:relative;display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;height:78px;border-radius:10px;background:var(--scr2);border:2px solid var(--sline);cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;overflow:hidden;transition:border-color .15s,background .15s;padding:0;color:var(--sink);font:inherit;text-align:left;width:100%}
+.lane .lh{display:flex;flex-direction:column;gap:2px;padding-left:14px;z-index:2}
+.lane .lh b{font-family:var(--display);font-variation-settings:"wdth" 85;font-weight:900;font-size:26px;line-height:1;color:var(--lc)}
+.lane .lh span{font-family:var(--mono);font-size:10px;color:var(--smute);letter-spacing:.06em}
+.track{position:relative;height:100%;margin-right:70px}
+.track::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:repeating-linear-gradient(90deg,var(--sline) 0 12px,transparent 12px 22px)}
+.ghost{position:absolute;top:22px;bottom:8px;width:2px;background:var(--sink);opacity:.55}
+.ghost span{position:absolute;bottom:100%;left:50%;translate:-50% 2px;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--smute)}
+.ghost::after{content:"";position:absolute;top:0;left:2px;width:14px;height:10px;background:var(--sink);clip-path:polygon(0 0,100% 50%,0 100%)}
+.runner{position:absolute;top:50%;translate:-50% -50%;width:58px;height:58px;border-radius:50%;background:var(--lc);color:#0B1218;display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:500;box-shadow:0 0 0 4px var(--scr2);z-index:2;transition:transform .15s}
+.runner::before{content:"";position:absolute;right:100%;top:50%;translate:0 -50%;height:12px;width:0;border-radius:6px;background:linear-gradient(90deg,transparent,var(--lc));opacity:.9;transition:width .2s}
+.lane.go{border-color:var(--lc);background:color-mix(in srgb,var(--lc) 14%,var(--scr2))}
+.lane.go .runner{transform:scale(1.12)}
+.lane.go .runner::before{width:70px}
+.lane.cold{border-color:var(--sbad);animation:coldp 1s infinite}
+@keyframes coldp{50%{background:color-mix(in srgb,var(--sbad) 14%,var(--scr2))}}
+.lane .tag{position:absolute;right:10px;top:50%;translate:0 -50%;font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:3px;z-index:2;white-space:nowrap}
+.lane .tag.up{background:var(--sgood);color:#04140c}.lane .tag.dn{background:var(--sbad);color:#1a0603}.lane .tag.warn{background:var(--tape);color:var(--on-tape)}
+.rfoot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.rfoot .months{flex:1;min-width:180px}
 .months{display:flex;gap:3px}
 .months i{flex:1;height:6px;border-radius:2px;background:var(--scr3)}
 .months i.on{background:var(--tape)}
-.news{font-size:14px;background:var(--scr3);border-left:3px solid var(--tape);padding:10px 12px;border-radius:4px;min-height:44px}
-@media (max-width:900px){.mkwrap{grid-template-columns:1fr}.emap{aspect-ratio:1/1}}
+@media (max-width:640px){.lane{grid-template-columns:64px minmax(0,1fr);height:70px}.lane .lh b{font-size:20px}.runner{width:48px;height:48px;font-size:10px}.track{margin-right:56px}}
 
-/* 7. Pick & pack */
-.belt{position:relative;height:130px;border-radius:10px;background:repeating-linear-gradient(90deg,var(--scr2) 0 26px,var(--scr3) 26px 28px);border:1px solid var(--sline);overflow:hidden;animation:belt .8s linear infinite}
-@keyframes belt{to{background-position:28px 0}}
-.belt .end{position:absolute;right:0;top:0;bottom:0;width:12px;background:repeating-linear-gradient(-45deg,var(--sbad) 0 6px,var(--scr) 6px 12px)}
-.parcel{position:absolute;top:50%;translate:0 -50%;width:92px;height:78px;background:#C9A26B;color:#1b1206;border:1px solid #8a6a3c;border-radius:4px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;text-align:center;box-shadow:0 4px 0 #5d4523;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:var(--mono);font-size:12px}
-.parcel::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:12px;translate:-50% 0;background:rgba(255,255,255,.25)}
-.parcel .stk{position:relative;width:22px;height:22px;border-radius:50%;background:var(--pc);border:2px solid #fff}
-.parcel b{position:relative;font-size:12px;background:#f6ecd9;padding:1px 5px;border-radius:2px}
-.chutes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
-.chute{border:3px dashed var(--pc);border-radius:10px;padding:14px 8px;text-align:center;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;background:color-mix(in srgb,var(--pc) 10%,transparent);color:var(--sink)}
-.chute b{font-family:var(--display);font-variation-settings:"wdth" 80;font-weight:850;font-size:clamp(30px,4vw,46px);line-height:1;color:var(--pc)}
-.chute span{font-size:12px;color:var(--smute)}
-.chute em{font-style:normal;font-family:var(--mono);font-size:12px}
-.chute.ok{background:color-mix(in srgb,var(--sgood) 25%,transparent)}
-.chute.no{background:color-mix(in srgb,var(--sbad) 25%,transparent)}
-@media (max-width:640px){.chutes{grid-template-columns:repeat(2,minmax(0,1fr))}.chute{min-height:96px}}
+/* Staff badge */
+.badgebtn{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;border:1px dashed var(--ink);background:transparent;color:var(--ink);padding:8px 12px;border-radius:4px;cursor:pointer;align-self:flex-end}
+.badgebtn.ready{border-style:solid;background:var(--tape);color:var(--on-tape);border-color:var(--tape);animation:bglow 1.6s infinite}
+@keyframes bglow{50%{box-shadow:0 0 0 6px rgba(242,182,0,.35)}}
+.badgebtn[aria-disabled="true"]{opacity:.6;cursor:default}
+.bview{display:grid;grid-template-columns:auto minmax(0,1fr);gap:32px;align-items:center;min-height:430px}
+.bview canvas{width:300px;height:420px;max-width:100%;display:block;filter:drop-shadow(0 24px 30px rgba(0,0,0,.55));rotate:2deg}
+.bside{display:flex;flex-direction:column;gap:14px;max-width:460px}
+.bside h2{font-family:var(--display);font-weight:880;font-variation-settings:"wdth" 80;text-transform:uppercase;font-size:clamp(32px,4.4vw,52px);line-height:.92;margin:0}
+.bside p{margin:0;color:var(--smute)}
+.bside label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--smute)}
+.bside input{font:inherit;font-size:18px;padding:11px 12px;border-radius:6px;border:1px solid var(--sline);background:var(--scr2);color:var(--sink);width:100%;max-width:320px}
+.bside .row{display:flex;gap:10px;flex-wrap:wrap}
+.bside .left{display:flex;flex-direction:column;gap:6px}
+.bside .left span{font-size:14px}
+@media (max-width:760px){.bview{grid-template-columns:1fr;justify-items:center}.bview canvas{width:260px;height:364px}}
+
+/* 7. Catch the fraud */
+.fr{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:14px}
+.feed{position:relative;height:470px;border-radius:10px;background:var(--scr2);border:1px solid var(--sline);overflow:hidden}
+.feedhead{position:absolute;top:0;left:0;right:0;padding:9px 12px 18px;z-index:4;background:linear-gradient(var(--scr2) 60%,transparent);display:flex;justify-content:space-between;gap:10px;pointer-events:none}
+.feedfoot{position:absolute;left:0;right:0;bottom:0;height:40px;z-index:4;display:grid;place-items:center;background:linear-gradient(transparent,rgba(79,211,154,.22));font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--sgood);pointer-events:none}
+.bk{position:absolute;left:12px;right:12px;top:0;height:76px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--sink);color:var(--scr);border:0;border-radius:10px;padding:10px 12px;text-align:left;cursor:pointer;box-shadow:0 8px 16px -10px rgba(0,0,0,.8);will-change:transform;touch-action:manipulation}
+.bk:hover{outline:3px solid var(--tape)}
+.bk .av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:19px;color:#0B1218}
+.bk .who{min-width:0}
+.bk .who b{display:block;font-size:15px;line-height:1.2}
+.bk .who span{display:block;font-size:12px;color:#55636E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk .who .trip{display:inline;font-size:12px;color:#13202A;font-weight:600}
+.bk .meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.dev{font-family:var(--mono);font-size:13px;font-weight:500;background:#dfe5ea;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.acct{font-size:11px;color:#55636E;white-space:nowrap}.acct.new{color:#c2410c;font-weight:700}
+.trip{font-weight:600;color:#13202A}
+.bk.done{pointer-events:none;transition:opacity .4s,transform .4s}
+.bk .seal{position:absolute;right:14px;top:50%;translate:0 -50%;font-family:var(--display);font-weight:900;font-size:22px;text-transform:uppercase;border:3px solid currentColor;padding:2px 10px;border-radius:4px;rotate:-8deg;background:rgba(255,255,255,.9)}
+.side7{display:flex;flex-direction:column;gap:12px}
+.panel7{background:var(--scr2);border:1px solid var(--sline);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
+#bl{display:flex;flex-wrap:wrap;gap:6px}
+#bl span{font-family:var(--mono);font-size:15px;font-weight:500;background:var(--sbad);color:#1a0603;padding:6px 10px;border-radius:5px}
+#bl span.fresh{animation:pop .4s, flash 1s 3}
+@keyframes flash{50%{box-shadow:0 0 0 6px rgba(255,107,90,.4)}}
+.rules7{margin:0;padding-left:18px;font-size:14px;line-height:1.35;display:flex;flex-direction:column;gap:8px}
+.rules7 li.fresh{color:var(--tape)}
+@media (max-width:760px){.fr{grid-template-columns:1fr}.side7{order:-1;flex-direction:row;flex-wrap:wrap}.side7>*{flex:1;min-width:150px}.feed{height:420px}.bk{grid-template-columns:36px minmax(0,1fr) auto;gap:8px;padding:8px 10px}.bk .av{width:36px;height:36px;font-size:16px}}
 
 /* Reveal */
 .reveal{display:flex;flex-direction:column;gap:12px;min-height:430px;justify-content:center;padding:clamp(6px,2vw,20px)}
@@ -333,6 +368,7 @@ h1 .tape{background:var(--tape);color:var(--on-tape);padding:0 .08em;width:max-c
 /* feedback, hints, win/lose */
 .share{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px;padding-top:14px;border-top:1px solid var(--sline)}
 .share .lbl{margin-right:4px}
+.sbtn.unl{border-color:var(--tape);color:var(--tape);animation:bglow 1.6s infinite}
 .sbtn.li{background:#0A66C2;border-color:#0A66C2;color:#fff}
 .sbtn.li:hover{background:#fff;color:#0A66C2;border-color:#fff}
 .spark{position:absolute;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:40;animation:spark .7s ease-out forwards}
@@ -395,6 +431,7 @@ footer.base{padding-block:20px 36px;color:var(--muted);display:flex;justify-cont
       <div class="score mono">
         <div><span>Games cleared</span><b id="cleared">0 / 7</b></div>
         <div><span>Each game</span><b>About 1 min</b></div>
+        <button class="badgebtn" type="button" id="badgebtn">Staff badge</button>
       </div>
     </div>
   </div>
@@ -493,7 +530,7 @@ const ICON={
  cause:'<circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/>',
  plates:'<ellipse cx="12" cy="6" rx="8" ry="2.6"/><path d="M12 9v12"/><path d="M8 21h8"/>',
  markets:'<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 15c0-3-2-5-6-5 0 3 2 5 6 5z"/><path d="M7 21h10"/>',
- pack:'<rect x="7" y="3" width="10" height="9" rx="1"/><path d="M2 16h20"/><circle cx="5" cy="19.5" r="1.5"/><circle cx="12" cy="19.5" r="1.5"/><circle cx="19" cy="19.5" r="1.5"/>',
+ fraud:'<path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/><path d="M12 8v5M12 16h.01"/>',
  photo:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 7"/>',
  tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
  shield:'<path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
@@ -511,7 +548,7 @@ const GAMES=[];let cur=null;const cleared=new Set();const add=g=>GAMES.push(g);
 function renderBoard(){
   $('board').innerHTML=GAMES.map((g,i)=>`<button class="shift" role="tab" type="button" id="tab-${g.id}" aria-controls="console" aria-selected="${cur===g.id}" tabindex="${cur===g.id?0:-1}" data-id="${g.id}">${svg(g.icon)}<span class="n mono">Game ${i+1}</span><span class="name">${g.name}</span><span class="meta mono">${g.area}</span>${cleared.has(g.id)?'<span class="done">CLEARED</span>':''}</button>`).join('');
   $('board').querySelectorAll('.shift').forEach(b=>b.onclick=()=>open(b.dataset.id,true));
-  $('cleared').textContent=cleared.size+' / '+GAMES.length;
+  $('cleared').textContent=cleared.size+' / '+GAMES.length;updBadgeBtn();
 }
 $('board').addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const i=GAMES.findIndex(g=>g.id===cur),n=(i+(e.key==='ArrowRight'?1:-1)+GAMES.length)%GAMES.length;open(GAMES[n].id);$('tab-'+GAMES[n].id).focus();});
 function stopCur(){const g=GAMES.find(x=>x.id===cur);if(g&&g.running){g.running=false;g.stop&&g.stop();}disarm();document.querySelectorAll('body > .ghost').forEach(x=>x.remove());}
@@ -526,15 +563,15 @@ $('crestart').onclick=()=>{const g=GAMES.find(x=>x.id===cur);if(g)begin(g);};
 function open(id,scroll){const g=GAMES.find(x=>x.id===id);if(!g)return;stopCur();cur=id;renderBoard();ready(g);
   if(scroll){const r=$('console').getBoundingClientRect();if(r.top<0||r.top>innerHeight*.5)$('console').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}}
 function reveal(g,{kicker,line,story,stats,result='win',stars}){
-  g.running=false;g.stop&&g.stop();disarm();cleared.add(g.id);renderBoard();$('cdot').className='dot';if(stats)chips(stats);
+  g.running=false;g.stop&&g.stop();disarm();const was=cleared.size;cleared.add(g.id);const sv={inbox:g.best,cities:g.fixed,fraud:g.caught}[g.id];const BB=bests[g.id]||(bests[g.id]={});if(stars!==undefined)BB.stars=Math.max(BB.stars||0,stars);if(sv!==undefined)BB.stat=Math.max(BB.stat||0,sv);saveProgress();renderBoard();const newBadge=(was<3&&cleared.size>=3)||(was<GAMES.length&&cleared.size>=GAMES.length);$('cdot').className='dot';if(stats)chips(stats);
   const next=GAMES[(GAMES.indexOf(g)+1)%GAMES.length];
   const stamp={win:'You win!',close:'So close!',lose:'Game over'}[result];
   const what=stars!==undefined?`I got ${'★'.repeat(stars)}${'☆'.repeat(3-stars)} (${stars}/3 stars) on "${g.name}"`:result==='win'?`I beat "${g.name}"`:result==='close'?`I nearly beat "${g.name}"`:`"${g.name}" beat me`;
   const brag=`${what} in Rajas Belsare's "Can you do my job?" game: 7 one-minute games built from his real work in e-commerce and operations. Can you do better? ${SITE}#${g.id}`;
   CB.innerHTML=`<div class="reveal"><div class="stamp ${result}">${stamp}${stars!==undefined?`<span class="st">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</span>`:''}</div><p class="kicker lbl">${kicker}</p><p class="rv-1">${line}</p><p class="rv-2"><span>That's exactly what I do.</span></p><p class="rv-3">${story}</p>
-   <div class="row"><button class="sbtn primary" type="button" id="rv-next">Next game: ${next.name} →</button><button class="sbtn" type="button" id="rv-again">Play again</button><a class="sbtn" href="${RESUME}" target="_blank" rel="noopener">Download resume ↗</a></div>
+   <div class="row"><button class="sbtn primary" type="button" id="rv-next">Next game: ${next.name} →</button>${cleared.size>=3?`<button class="sbtn${newBadge?' unl':''}" type="button" id="rv-badge">${cleared.size>=GAMES.length?'Get your certified badge':'See your staff badge'}${newBadge?' ★ new':''}</button>`:''}<button class="sbtn" type="button" id="rv-again">Play again</button><a class="sbtn" href="${RESUME}" target="_blank" rel="noopener">Download resume ↗</a></div>
    <div class="share"><span class="lbl">Share your score</span><a class="sbtn li" href="https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(brag)}" target="_blank" rel="noopener">Share on LinkedIn ↗</a><a class="sbtn" href="https://wa.me/?text=${encodeURIComponent(brag)}" target="_blank" rel="noopener">WhatsApp ↗</a><button class="sbtn" type="button" id="rv-copy">Copy text</button></div></div>`;
-  $('rv-next').onclick=()=>open(next.id,true);$('rv-again').onclick=()=>begin(g);
+  if($('rv-badge'))$('rv-badge').onclick=showBadge;$('rv-next').onclick=()=>open(next.id,true);$('rv-again').onclick=()=>begin(g);
   $('rv-copy').onclick=()=>{const b=$('rv-copy'),ok=()=>{b.textContent='Copied!';setTimeout(()=>b.textContent='Copy text',1600);};try{navigator.clipboard.writeText(brag).then(ok,()=>toast(brag));}catch(_){toast(brag);}};
   if(result==='win'){confetti();sfx('win');}else sfx(result==='close'?'good':'lose');
   say(stamp+" That's exactly what I do.");
@@ -847,116 +884,209 @@ add({id:'plates',icon:'plates',name:'Spin 12 brands',area:'Leadership',mins:'50 
  stop(){cancelAnimationFrame(this.raf);}
 });
 
-/* ============ 6. GROW THE MARKET ============ */
-const MKS=[{x:.28,y:.28,b:40.3,g:15.7,me:78.5},{x:.72,y:.34,b:36.6,g:12.3,me:55.6},{x:.45,y:.64,b:5.6,g:38,me:17.7},{x:.22,y:.84,b:4.6,g:33.6,me:10.7}];
-const MKME=MKS.reduce((a,m)=>a+m.me,0),MKST=MKS.reduce((a,m)=>a+m.b,0);
-const MNEWS={3:[2,2,'France has a big promo season. Focusing there pays double.'],6:[3,.3,'A tax change slows Spain right down.'],8:[0,1.8,'A big UK competitor quits. The UK is hot.']};
-const MSTARS=[120,135,148],MONTH=4;
-add({id:'markets',icon:'markets',name:'Grow the market',area:'Strategy',mins:'45 sec',
- title:'Grow four markets in a year',
- how:'Each month you can focus your team on <b>one country</b>. <b>Tap a country</b> to pick it. Its bubble shows how much it will grow.',
- goal:'Countries you ignore for 3 months start shrinking, so don\'t forget anyone. Watch the news too. Three stars at $148M.',
- art(){return`<svg viewBox="0 0 340 220"><rect width="340" height="220" rx="10" fill="#121C25"/>${[[95,62,44,'#FF6B6B','UK','+$5M'],[245,74,40,'#4FD39A','DE','+$3M'],[150,145,22,'#6CB6FF','FR','+$2M'],[75,188,18,'#C79BFF','ES','!']].map(([x,y,r,c,t,g],i)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" opacity="${i===2?.5:.2}" stroke="${c}" stroke-width="${i===2?6:3}"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="${r>30?16:12}" font-weight="900" fill="#E6EDF2">${t}</text><rect x="${x-20}" y="${y-r-18}" width="40" height="14" rx="7" fill="${g==='!'?'#FF6B5A':'#4FD39A'}"/><text x="${x}" y="${y-r-8}" text-anchor="middle" font-size="9" font-weight="700" fill="#0B1218">${g}</text>`).join('')}<text x="150" y="182" text-anchor="middle" font-size="10" font-weight="700" fill="#F2B600">FOCUS</text></svg>`;},
+/* ============ 6. MARKET RACE ============ */
+const RLANE=[{c:'UK',n:'United Kingdom',b:40.3,g:15.7,me:78.5},{c:'DE',n:'Germany',b:36.6,g:12.3,me:55.6},{c:'FR',n:'France',b:5.6,g:38,me:17.7},{c:'ES',n:'Spain',b:4.6,g:33.6,me:10.7}];
+const RME=RLANE.reduce((a,m)=>a+m.me,0),RST=RLANE.reduce((a,m)=>a+m.b,0),RSTARS=[125,140,155],RMONTH=4,RNEG=6;
+const RNEWS=[[10,2,2,8,'France: big Amazon promo season. Pushing France pays double right now.'],[22,3,.3,8,'Spain: a tax change has blocked the road. Pushing there barely helps.'],[30,0,1.8,8,'UK: a major competitor quits. The UK is wide open.']];
+add({id:'markets',icon:'markets',name:'Market race',area:'Strategy',mins:'45 sec',
+ title:'The market race',
+ how:'Four countries race to grow. <b>Press and hold a lane</b> to put your team on it and it speeds up. Let go to switch.',
+ goal:'Small markets sprint, big ones are slow but huge. Any lane you ignore for a few seconds cools down and slides back. Can you pass my team\'s flags?',
+ art(){return`<svg viewBox="0 0 340 220"><rect width="340" height="220" rx="12" fill="#121C25"/>${[['#FF6B6B','UK',150,230],['#4FD39A','DE',120,200],['#6CB6FF','FR',200,190],['#C79BFF','ES',90,210]].map(([c,t,x,g],i)=>`<rect x="10" y="${14+i*50}" width="320" height="42" rx="8" fill="${i===2?'#1d3348':'#1A2631'}" stroke="${i===2?c:'#26343F'}" stroke-width="2"/><text x="20" y="${41+i*50}" font-size="15" font-weight="900" fill="${c}">${t}</text><line x1="${g}" x2="${g}" y1="${18+i*50}" y2="${52+i*50}" stroke="#E6EDF2" stroke-width="2" opacity=".6"/>${i===2?`<rect x="${x-60}" y="${31+i*50}" width="50" height="8" rx="4" fill="${c}" opacity=".6"/>`:''}<circle cx="${x}" cy="${35+i*50}" r="15" fill="${c}"/>`).join('')}<g transform="translate(196 116)"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10l5.2 1a2 2 0 0 1 1.6 2.2L18.6 20H10.2l-4.3-5.6a1.4 1.4 0 0 1 2.1-1.8L9 14z" fill="#fff" stroke="#0B1218" stroke-width="1.4" transform="scale(1.6)"/></g></svg>`;},
  start(){
-  this.M=MKS.map((m,i)=>({...m,...COUNTRY[i],val:m.b,ign:0,boost:1,bt:0}));this.mo=0;this.T=0;this.focus=-1;this.picks=0;
-  chips([['mo','Month','1 / 11'],['tot','Your total','$'+MKST.toFixed(0)+'M'],['me','My team','$'+MKME.toFixed(0)+'M','hot']]);
-  CB.innerHTML=`<div class="goalrow"><span class="lbl">Goal</span><div class="gb"><i id="gbi"></i>${MSTARS.map(s=>`<s style="left:${(s-MKST)/(MSTARS[2]-MKST)*100}%" data-s="${s}">★</s>`).join('')}</div></div>
-   <div class="mkwrap"><div class="emap" id="emap"><canvas id="ecv"></canvas>${this.M.map((m,i)=>`<button type="button" class="mb" data-i="${i}" style="left:${m.x*100}%;top:${m.y*100}%;--mc:var(${COUNTRY[i].v})" aria-label="Focus on ${m.n}. Key ${i+1}."><span class="gain" data-g></span><b>${m.c}</b><span data-v></span><span class="warn" data-w></span></button>`).join('')}</div>
-   <div class="tray"><span class="lbl">This month</span><div class="mclock"><i id="mbar"></i></div><div class="months" id="months">${'<i></i>'.repeat(11)}</div><div class="news" id="news">Tap a country to focus on it. When the bar fills, the month ends and it grows.</div></div></div>`;
-  this.bubs=[...CB.querySelectorAll('.mb')];this.bubs.forEach((b,i)=>b.onclick=()=>this.pick(i));
-  const cv=$('ecv');this.ecv=sizeCanvas(cv);this.draw();this.onR=()=>{this.ecv=sizeCanvas(cv);this.draw();this.paint();};addEventListener('resize',this.onR);
+  this.L=RLANE.map((m,i)=>({...m,...{v:COUNTRY[i].v},val:m.b,idle:0,boost:1,bt:0,max:m.me*1.3}));this.T=0;this.focus=-1;this.ni=0;this.mo=0;this.held=0;
+  chips([['mo','Month','1 / 11'],['tot','Your total','$'+RST.toFixed(0)+'M'],['me','My team','$'+RME.toFixed(1)+'M','hot']]);
+  CB.innerHTML=`<div class="race"><div class="goalrow" style="margin:0"><span class="lbl">Goal</span><div class="gb"><i id="gbi"></i>${RSTARS.map(s=>`<s style="left:${(s-RST)/(RSTARS[2]-RST)*100}%" data-s="${s}">★</s>`).join('')}</div></div>
+   <div class="rnews" id="rnews"><b>Tip</b><span>Hold a lane to push it. Small lanes grow fastest, but don't let any lane go cold.</span></div>
+   <div class="lanes">${this.L.map((m,i)=>`<button type="button" class="lane" data-i="${i}" style="--lc:var(${COUNTRY[i].v})" aria-label="Hold to push ${m.n}. Key ${i+1}."><span class="lh"><b>${m.c}</b><span data-v></span></span><span class="track"><span class="ghost" style="left:${m.me/m.max*100}%"><span>My team $${m.me}M</span></span><span class="runner" data-r>${m.c}</span></span><span class="tag" data-t hidden></span></button>`).join('')}</div>
+   <div class="rfoot"><span class="lbl">Year</span><div class="months" id="months">${'<i></i>'.repeat(11)}</div></div></div>`;
+  this.lanes=[...CB.querySelectorAll('.lane')];
+  this.lanes.forEach((el,i)=>{
+   const down=e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId);}catch(_){}this.setFocus(i);};
+   const up=()=>{if(this.focus===i)this.setFocus(-1);};
+   el.addEventListener('pointerdown',down);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('lostpointercapture',up);
+  });
+  this.kd=e=>{const n=+e.key;if(n>=1&&n<=4&&!e.repeat)this.setFocus(n-1);};this.ku=e=>{const n=+e.key;if(n>=1&&n<=4&&this.focus===n-1)this.setFocus(-1);};
+  addEventListener('keydown',this.kd);addEventListener('keyup',this.ku);
   this.paint();this.last=performance.now();this.raf=requestAnimationFrame(t=>this.loop(t));
  },
- key(e){const n=+e.key;if(n>=1&&n<=4)this.pick(n-1);},
- draw(){const {c,w,h}=this.ecv;c.clearRect(0,0,w,h);c.fillStyle=CSSV('--sline');for(let x=10;x<w;x+=18)for(let y=10;y<h;y+=18)c.fillRect(x,y,1.2,1.2);},
+ setFocus(i){if(!this.running)return;this.focus=i;this.lanes.forEach((el,j)=>el.classList.toggle('go',j===i));if(i>=0)sfx('tap');},
  pct(m){return m.g*m.boost*Math.pow(m.b/m.val,1.1);},
- pick(i){if(!this.running)return;if(this.focus!==i){this.focus=i;sfx('tap');this.paint();}},
- paint(){
-  const em=$('emap');if(!em)return;const W=em.clientWidth;
-  this.M.forEach((m,i)=>{const b=this.bubs[i],d=Math.max(76,Math.sqrt(m.val/80)*W*.36);b.style.width=d+'px';b.style.height=d+'px';
-   b.querySelector('[data-v]').textContent='$'+m.val.toFixed(1)+'M';
-   b.querySelector('[data-g]').textContent='+$'+(m.val*this.pct(m)/100).toFixed(1)+'M'+(m.boost>1?' 🔥':m.boost<1?' ⛈':'');
-   const w=b.querySelector('[data-w]');w.textContent=m.ign>=3?'Shrinking!':m.ign===2?'Needs you soon':'';w.className='warn'+(m.ign>=3?' bad':m.ign===2?' soon':'');
-   b.classList.toggle('focus',this.focus===i);});
-  $('months').querySelectorAll('i').forEach((x,i)=>x.classList.toggle('on',i<=this.mo));
-  const tot=this.M.reduce((a,m)=>a+m.val,0);chip('mo',Math.min(11,this.mo+1)+' / 11');chip('tot','$'+tot.toFixed(0)+'M',tot>=MSTARS[1]?'good':'');
-  $('gbi').style.width=clamp((tot-MKST)/(MSTARS[2]-MKST)*100,0,100)+'%';CB.querySelectorAll('.gb s').forEach(x=>x.classList.toggle('on',tot>=+x.dataset.s));
- },
- loop(now){if(!this.running)return;
-  const dt=Math.min(.1,(now-this.last)/1000);this.last=now;this.T+=dt;
-  const f=this.T/MONTH-this.mo;$('mbar').style.width=clamp(f*100,0,100)+'%';
-  if(f>=1){
-   this.M.forEach((m,i)=>{let p;if(i===this.focus){p=this.pct(m);m.ign=0;}else{m.ign++;p=m.ign>=3?-8:1;}const before=m.val;m.val*=1+p/100;
-    if(i===this.focus)good(this.bubs[i],'+$'+(m.val-before).toFixed(1)+'M');else if(p<0)floatAt(CB,this.bubs[i],'−$'+(before-m.val).toFixed(1)+'M','var(--sbad)');
-    if(m.bt>0){m.bt--;if(!m.bt)m.boost=1;}});
-   if(this.focus>=0)this.picks++;
-   this.mo++;this.focus=-1;
-   if(this.mo>=11){this.paint();this.end();return;}
-   const n=MNEWS[this.mo];if(n){const m=this.M[n[0]];m.boost=n[1];m.bt=2;$('news').innerHTML=`<b class="lbl" style="color:var(--tape)">Month ${this.mo+1} news</b><br>${n[2]}`;toast('News: '+m.n);}
-   this.paint();
-  }
-  this.raf=requestAnimationFrame(t=>this.loop(t));},
- end(){const tot=this.M.reduce((a,m)=>a+m.val,0),st=MSTARS.filter(s=>tot>=s).length;
-  reveal(this,{result:st>=2?'win':st===1?'close':'lose',stars:st,kicker:`11 months · You grew $${MKST.toFixed(0)}M into $${tot.toFixed(1)}M · My team did $${MKME.toFixed(1)}M`,
-   line:tot>=MKME?"You beat my team's real numbers. We should definitely talk.":st===3?'Three stars. You balanced the big markets and the fast-growing ones.':st===2?'Two stars. Good growth across Europe.':'Growing four markets at once is hard. Ignored ones shrink fast.',
-   story:'Over 11 months at Pattern, the brands my team manages grew from $40.3M to $78.5M in the UK and from $36.6M to $55.6M in Germany, more than tripled in France and more than doubled in Spain. The trick is putting the team where it compounds, without letting any market fall behind.',
-   stats:[['s','Stars','★'.repeat(st)+'☆'.repeat(3-st),'hot'],['y','You','$'+tot.toFixed(1)+'M',st>=2?'good':''],['m','My team','$'+MKME.toFixed(1)+'M']]});},
- stop(){cancelAnimationFrame(this.raf);removeEventListener('resize',this.onR);}
-});
-
-/* ============ 7. PICK & PACK ============ */
-const CITIES=[['London','Manchester','Leeds','Bristol'],['Berlin','Munich','Hamburg','Cologne'],['Paris','Lyon','Marseille','Lille'],['Madrid','Barcelona','Valencia','Seville']];
-add({id:'pack',icon:'pack',name:'Pick & pack',area:'Warehouse',mins:'60 sec',
- title:'Pick, pack, ship',
- how:'Boxes roll along the belt. <b>Drag each box</b> into the chute with the <b>same colour</b>.',
- goal:'Later the colour stickers fall off and only the city is left. Lose five boxes and the warehouse closes.',
- art(){return`<svg viewBox="0 0 340 220"><rect x="10" y="20" width="320" height="80" rx="10" fill="#121C25"/>${Array.from({length:12},(_,i)=>`<rect x="${14+i*27}" y="20" width="2" height="80" fill="#1A2631"/>`).join('')}<g transform="translate(70 34)"><rect width="70" height="52" rx="4" fill="#C9A26B"/><circle cx="35" cy="20" r="10" fill="#6CB6FF" stroke="#fff" stroke-width="2"/><rect x="14" y="34" width="42" height="12" rx="2" fill="#f6ecd9"/></g>${[['#FF6B6B',20],['#4FD39A',100],['#6CB6FF',180],['#C79BFF',260]].map(([c,x])=>`<rect x="${x}" y="130" width="62" height="70" rx="8" fill="${c}" opacity=".15" stroke="${c}" stroke-width="3" stroke-dasharray="6 5"/>`).join('')}<path d="M105 90 C 140 120 190 120 210 128" stroke="#F2B600" stroke-width="3" stroke-dasharray="6 6" fill="none"/></svg>`;},
- start(){
-  this.P=[];this.T=0;this.nx=.4;this.packed=0;this.lost=0;this.dur=60;this.nid=0;this.plain=false;this.counts=[0,0,0,0];
-  chips([['left','Time','1:00'],['pk','Shipped','0','good'],['lost','Lost','0 / 5']]);
-  CB.innerHTML=`<p class="banner" id="bn">Match the colour sticker to the chute.</p><div class="belt" id="belt"><span class="end"></span></div>
-   <div class="chutes">${COUNTRY.map((c,i)=>`<button type="button" class="chute" data-k="${i}" style="--pc:var(${c.v})"><b>${c.c}</b><span>${c.n}</span><span class="smute" style="font-size:11px">${CITIES[i].join(' · ')}</span><em data-n>0 shipped</em></button>`).join('')}</div>`;
-  this.chutes=[...CB.querySelectorAll('.chute')];
-  this.chutes.forEach((ch,i)=>ch.onclick=()=>{if(armed&&armed.data.pid!==undefined){const p=this.P.find(x=>x.id===armed.data.pid);disarm();if(p)this.drop(p,i);}});
-  this.last=performance.now();this.raf=requestAnimationFrame(t=>this.loop(t));
- },
- key(e){const n=+e.key;if(n>=1&&n<=4&&armed&&armed.data.pid!==undefined){const p=this.P.find(x=>x.id===armed.data.pid);disarm();if(p)this.drop(p,n-1);}},
- spawn(){
-  const k=Math.floor(Math.random()*4),city=pick(CITIES[k]),el=document.createElement('div'),p={id:this.nid++,k,city,x:-100,held:false,el};
-  el.className='parcel';el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label','Box for '+city);
-  el.style.setProperty('--pc',`var(${COUNTRY[k].v})`);
-  el.innerHTML=this.plain?`<b>${city}</b>`:`<span class="stk"></span><b>${city}</b>`;
-  el.style.left='-100px';$('belt').appendChild(el);this.P.push(p);
-  draggable(el,{data:{pid:p.id},onMove:(x,y)=>{p.held=true;this.chutes.forEach(c=>c.classList.toggle('drop-ok',inRect(x,y,c)));},
-   onDrop:pt=>{this.chutes.forEach(c=>c.classList.remove('drop-ok'));p.held=false;if(!pt)return;const c=hitAny(pt.x,pt.y,this.chutes,8);if(c)this.drop(p,+c.dataset.k);}});
- },
- drop(p,k){
-  if(!this.P.includes(p)||!this.running)return;const ch=this.chutes[k];
-  if(p.k===k){this.packed++;this.counts[k]++;ch.querySelector('[data-n]').textContent=this.counts[k]+' shipped';ch.classList.add('ok');setTimeout(()=>ch.classList.remove('ok'),300);good(ch,'+1');}
-  else{this.lost++;ch.classList.add('no');sfx('bad');bump(ch);setTimeout(()=>ch.classList.remove('no'),400);toast(`${p.city} is in ${COUNTRY[p.k].n}.`);}
-  this.kill(p);chip('pk',this.packed,'good');chip('lost',this.lost+' / 5',this.lost?'bad':'');if(this.lost>=5)this.end(false);
- },
- kill(p){p.el.remove();this.P=this.P.filter(x=>x!==p);if(armed&&armed.data.pid===p.id)disarm();},
  loop(now){
   if(!this.running)return;
   const dt=Math.min(.05,(now-this.last)/1000);this.last=now;this.T+=dt;
-  if(this.T>=this.dur){this.end(true);return;}
-  if(this.T>=25&&!this.plain){this.plain=true;$('bn').textContent='Stickers are gone! Use the city names. They are listed on each chute.';toast('No more colour stickers!');}
-  const belt=$('belt');if(!belt)return;const W=belt.clientWidth,speed=W/Math.max(3.6,7.5-this.T/12);
-  if(this.T>=this.nx){this.spawn();this.nx=this.T+Math.max(.9,1.9-this.T/45);}
-  for(const p of this.P.slice()){if(p.held)continue;p.x+=speed*dt;p.el.style.left=p.x+'px';
-   if(p.x>W-12){this.lost++;sfx('bad');toast(`The ${p.city} box fell off the belt.`);this.kill(p);chip('lost',this.lost+' / 5','bad');if(this.lost>=5){this.end(false);return;}}}
+  if(this.T>=RMONTH*11){this.paint();this.end();return;}
+  const mo=Math.floor(this.T/RMONTH);if(mo!==this.mo){this.mo=mo;}
+  while(this.ni<RNEWS.length&&this.T>=RNEWS[this.ni][0]){const [,i,f,d,t]=RNEWS[this.ni++];const m=this.L[i];m.boost=f;m.bt=d;$('rnews').innerHTML=`<b>Month ${this.mo+1} news</b><span>${t}</span>`;toast('News from '+m.n+'!');sfx('tap');}
+  if(this.focus>=0)this.held+=dt;
+  this.L.forEach((m,i)=>{
+   if(m.bt>0){m.bt-=dt;if(m.bt<=0)m.boost=1;}
+   let p;if(i===this.focus){p=this.pct(m);m.idle=0;}else{m.idle+=dt;p=m.idle>RNEG?-8:1;}
+   const before=m.val;m.val*=Math.pow(1+p/100,dt/RMONTH);
+   if(!m.passed&&m.val>=m.me){m.passed=true;good(this.lanes[i].querySelector('.runner'),'Passed my team!');}
+  });
+  this.fc=(this.fc||0)+1;if(this.fc%3===0)this.paint();
+  this.raf=requestAnimationFrame(t=>this.loop(t));
+ },
+ paint(){
+  const tot=this.L.reduce((a,m)=>a+m.val,0);
+  this.L.forEach((m,i)=>{const el=this.lanes[i];if(!el)return;
+   el.querySelector('[data-r]').style.left=clamp(m.val/m.max*100,3,100)+'%';
+   el.querySelector('[data-v]').textContent='$'+m.val.toFixed(1)+'M';
+   const cold=i!==this.focus&&m.idle>RNEG-2;el.classList.toggle('cold',cold);
+   const t=el.querySelector('[data-t]');let txt='',cls='';
+   if(m.bt>0){txt=m.boost>1?'▲ Boost ×'+m.boost:'▼ Blocked';cls=m.boost>1?'up':'dn';}else if(i!==this.focus&&m.idle>RNEG){txt='Sliding back!';cls='dn';}else if(cold){txt='Cooling down';cls='warn';}
+   t.hidden=!txt;t.textContent=txt;t.className='tag '+cls;});
+  $('months').querySelectorAll('i').forEach((x,i)=>x.classList.toggle('on',i<=this.mo));
+  chip('mo',Math.min(11,this.mo+1)+' / 11');chip('tot','$'+tot.toFixed(1)+'M',tot>=RSTARS[1]?'good':'');
+  $('gbi').style.width=clamp((tot-RST)/(RSTARS[2]-RST)*100,0,100)+'%';CB.querySelectorAll('.gb s').forEach(x=>x.classList.toggle('on',tot>=+x.dataset.s));
+ },
+ key(){},
+ end(){
+  const tot=this.L.reduce((a,m)=>a+m.val,0),st=RSTARS.filter(s=>tot>=s).length,passed=this.L.filter(m=>m.passed).length;
+  this.stat=Math.round(tot);
+  reveal(this,{result:st>=2?'win':st===1?'close':'lose',stars:st,
+   kicker:`11 months · You grew $${RST.toFixed(0)}M into $${tot.toFixed(1)}M · My team: $${RME.toFixed(1)}M · ${passed} of 4 flags passed`,
+   line:tot>=RME?"You beat my team's real numbers. We should definitely talk.":st===3?'Three stars. You pushed the fast lanes without letting the big ones go cold.':st===2?'Two stars. Good growth across all four markets.':'Four markets at once is a juggling act. Cold lanes slide back fast.',
+   story:'Over 11 months at Pattern, the brands my team manages grew from $40.3M to $78.5M in the UK and from $36.6M to $55.6M in Germany, more than tripled in France and more than doubled in Spain. The trick is putting the team where it compounds, without letting any market go cold.',
+   stats:[['s','Stars','★'.repeat(st)+'☆'.repeat(3-st),'hot'],['y','You','$'+tot.toFixed(1)+'M',st>=2?'good':''],['m','My team','$'+RME.toFixed(1)+'M']]});
+ },
+ stop(){cancelAnimationFrame(this.raf);removeEventListener('keydown',this.kd);removeEventListener('keyup',this.ku);}
+});
+
+/* ============ 7. CATCH THE FRAUD ============ */
+const GNAMES=['Aarav','Diya','Kabir','Meera','Rohan','Isha','Vihaan','Anaya','Arjun','Sara','Dev','Tara','Neil','Riya','Om','Zoya','Ishaan','Myra'];
+const GCARS=['Swift','Creta','Nexon','Thar','Baleno','XUV700','City','Innova','i20','Seltos'];
+const GCITY=['Pune','Indore','Nagpur','Bhopal','Nashik'];
+const AVC=['#FFC8A2','#9FD0FF','#C7F0D8','#E3C9FF','#FFE08A','#FFB3B3'];
+const EASY=['F0','A1','A5'],SAFE='BCDGHKMNPRSTVWXYZ',LONGL='KMPRTW';
+const mkDev=()=>SAFE[Math.floor(Math.random()*SAFE.length)]+Math.floor(Math.random()*10);
+const mkLong=()=>LONGL[Math.floor(Math.random()*LONGL.length)]+Math.floor(Math.random()*10)+'-'+String(Math.floor(Math.random()*90)+10);
+add({id:'fraud',icon:'fraud',name:'Catch the fraud',area:'Risk ops',mins:'45 sec',
+ title:'Catch the fraud',
+ how:'Car bookings stream down the screen. Some come from phones used for fraud before. <b>Tap a booking</b> to block it when its <b>device ID</b> is on the red list, like <b>F0</b>, <b>A1</b> or <b>A5</b>.',
+ goal:'Then it gets sneaky: look-alike IDs like K7-38 and K7-83 show up, and a second warning sign appears. Let 3 frauds slip through and it is over.',
+ art(){return`<svg viewBox="0 0 340 220"><rect width="340" height="220" rx="12" fill="#121C25"/>${[[18,'#9FD0FF','R','K7-83',0],[78,'#FFC8A2','A','A1',1],[138,'#C7F0D8','M','C4',0]].map(([y,c,n,d,f])=>`<rect x="14" y="${y}" width="200" height="50" rx="9" fill="#E6EDF2"/><circle cx="38" cy="${y+25}" r="15" fill="${c}"/><text x="38" y="${y+31}" text-anchor="middle" font-size="15" font-weight="900" fill="#0B1218">${n}</text><rect x="62" y="${y+14}" width="60" height="7" rx="3" fill="#13202A"/><rect x="62" y="${y+28}" width="40" height="6" rx="3" fill="#8B9AA6"/><rect x="140" y="${y+15}" width="62" height="20" rx="4" fill="${f?'#FF6B5A':'#dfe5ea'}"/><text x="171" y="${y+29}" text-anchor="middle" font-size="11" font-family="monospace" font-weight="700" fill="#13202A">${d}</text>${f?`<text x="110" y="${y+33}" text-anchor="middle" font-size="18" font-weight="900" fill="#FF6B5A" transform="rotate(-8 110 ${y+28})">BLOCKED</text>`:''}`).join('')}<rect x="226" y="18" width="100" height="150" rx="9" fill="#1A2631"/><text x="236" y="38" font-size="9" fill="#8B9AA6" font-family="monospace">RED LIST</text>${['F0','A1','A5','K7-38'].map((d,i)=>`<rect x="236" y="${48+i*28}" width="80" height="22" rx="4" fill="#FF6B5A"/><text x="276" y="${63+i*28}" text-anchor="middle" font-size="11" font-family="monospace" font-weight="700" fill="#1a0603">${d}</text>`).join('')}</svg>`;},
+ start(){
+  this.block=EASY.slice();this.tricky=[];
+  this.C=[];this.T=0;this.nx=.4;this.caught=0;this.missed=0;this.wrong=0;this.ok=0;this.dur=45;this.rule2=false;this.ev=0;this.nid=0;
+  chips([['left','Time','0:45'],['c','Caught','0','good'],['m','Slipped through','0 / 3'],['w','False alarms','0']]);
+  CB.innerHTML=`<div class="fr"><div class="feed" id="feed"><div class="feedhead"><span class="lbl">Incoming bookings ↓</span><span class="lbl">Tap to block</span></div><div class="feedfoot">BOOKINGS THAT REACH HERE GO THROUGH</div></div>
+   <div class="side7"><div class="panel7"><span class="lbl" style="color:var(--sbad)">Red list · known fraud devices</span><div id="bl"></div></div>
+   <div class="panel7"><span class="lbl">Block a booking if</span><ol class="rules7" id="rules"><li>its <b>device ID</b> is on the red list</li></ol></div></div></div>`;
+  this.paintList();this.last=performance.now();this.raf=requestAnimationFrame(t=>this.loop(t));
+ },
+ paintList(fresh){$('bl').innerHTML=this.block.map(d=>`<span class="${d===fresh?'fresh':''}">${d}</span>`).join('');},
+ spawn(){
+  const feed=$('feed');if(!feed)return;
+  const fraud=Math.random()<.34;let kind=fraud?(this.rule2&&Math.random()<.45?'new':'dev'):'ok';
+  let dev;
+  if(kind==='dev')dev=this.tricky.length&&Math.random()<.5?pick(this.tricky):pick(this.block);
+  else{const r=Math.random();
+   if(this.tricky.length&&r<.35){const t=pick(this.tricky);dev=t.slice(0,3)+t[4]+t[3];}
+   else if(this.tricky.length&&r<.55)dev=mkLong();else dev=mkDev();
+   while(this.block.includes(dev))dev=mkLong();}
+  let days=Math.floor(rnd(1,5)),acct='Member since '+(2018+Math.floor(Math.random()*6)),isNew=false;
+  if(kind==='new'){days=Math.floor(rnd(10,21));acct='Account made '+Math.floor(rnd(2,9))+' min ago';isNew=true;}
+  else if(this.rule2&&Math.random()<.35){if(Math.random()<.5){days=Math.floor(rnd(10,16));}else{acct='Account made '+Math.floor(rnd(2,9))+' min ago';isNew=true;days=Math.floor(rnd(1,4));}}
+  const name=pick(GNAMES),el=document.createElement('button');el.type='button';el.className='bk';
+  el.innerHTML=`<span class="av" style="background:${pick(AVC)}">${name[0]}</span><span class="who"><b>${name}</b><span>${pick(GCARS)} · ${pick(GCITY)} · <span class="trip">${days} day${days>1?'s':''}</span></span></span><span class="meta"><span class="dev">${dev}</span><span class="acct${isNew?' new':''}">${acct}</span></span>`;
+  el.setAttribute('aria-label',`${name}, ${days} days, device ${dev}, ${acct}. Press to block.`);
+  const c={id:this.nid++,el,y:-84,fraud:kind!=='ok',kind,done:false};
+  el.addEventListener('pointerdown',e=>{e.preventDefault();this.tap(c);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();this.tap(c);}});
+  el.style.transform=`translateY(-84px)`;feed.appendChild(el);this.C.push(c);
+ },
+ seal(c,txt,col){const s=document.createElement('span');s.className='seal';s.textContent=txt;s.style.color=col;c.el.appendChild(s);c.done=true;c.el.classList.add('done');setTimeout(()=>{c.el.style.opacity='0';},350);setTimeout(()=>{c.el.remove();},800);},
+ tap(c){
+  if(!this.running||c.done)return;
+  if(c.fraud){this.caught++;good(c.el,'Blocked!');this.seal(c,'Blocked','#d1342f');}
+  else{this.wrong++;bad(c.el,'That was a real guest. Check the device ID against the red list.');this.seal(c,'Real guest','#1f8a52');}
+  this.C=this.C.filter(x=>x!==c);this.chips();
+ },
+ chips(){chip('c',this.caught,'good');chip('m',this.missed+' / 3',this.missed?'bad':'');chip('w',this.wrong,this.wrong?'bad':'');},
+ loop(now){
+  if(!this.running)return;
+  const dt=Math.min(.05,(now-this.last)/1000);this.last=now;this.T+=dt;
+  if(this.T>=this.dur){this.end();return;}
+  const EV=[[13,()=>{let d=mkLong();while(this.block.includes(d)||d[3]===d[4])d=mkLong();this.block.push(d);this.tricky.push(d);this.paintList(d);toast('New fraud device: '+d+'. Watch the digits, look-alikes are coming.');sfx('tap');}],
+   [21,()=>{this.rule2=true;$('rules').insertAdjacentHTML('beforeend','<li class="fresh">a <b>brand-new account</b> books a car for <b>10+ days</b></li>');toast('New warning sign added. Check the list.');sfx('tap');}],
+   [31,()=>{let d=mkLong();while(this.block.includes(d)||d[3]===d[4])d=mkLong();this.block.push(d);this.tricky.push(d);this.paintList(d);toast('Another fraud device: '+d+'. Read carefully!');sfx('tap');}]];
+  while(this.ev<EV.length&&this.T>=EV[this.ev][0]){EV[this.ev][1]();this.ev++;}
+  if(this.T>=this.nx){this.spawn();this.nx=this.T+Math.max(.85,1.65-this.T/32);}
+  const feed=$('feed');if(!feed)return;const H=feed.clientHeight,sp=58+this.T*1.35;
+  for(const c of this.C.slice()){c.y+=sp*dt;c.el.style.transform=`translateY(${c.y.toFixed(1)}px)`;
+   if(c.y>H-36){this.C=this.C.filter(x=>x!==c);
+    if(c.fraud){this.missed++;bad(c.el,c.kind==='dev'?`Fraud got through: ${c.el.querySelector('.dev').textContent} was on the red list.`:'Fraud got through: brand-new account, long trip.');this.seal(c,'Fraud!','#d1342f');this.chips();if(this.missed>=3){this.end(true);return;}}
+    else{this.ok++;c.done=true;c.el.style.transition='opacity .3s';c.el.style.opacity='0';setTimeout(()=>c.el.remove(),300);}}}
   chip('left',fmtT(this.dur-this.T+.99));
   this.raf=requestAnimationFrame(t=>this.loop(t));
  },
- end(won){
-  reveal(this,{result:won?'win':'lose',kicker:won?`60 seconds · ${this.packed} boxes shipped · ${this.lost} lost`:`Warehouse closed at ${fmtT(this.T)} · ${this.packed} shipped`,
-   line:won?`You shipped ${this.packed} boxes to the right countries while the belt kept speeding up.`:'Five boxes lost. The belt never waits.',
-   story:'Supply chain is where I started: an MBA in operations and supply chain (9.88 CGPA), then inventory tracking at Zoomcar that hit 100% accuracy in and out, and now shipping into ten European marketplaces.',
-   stats:[['p','Shipped',this.packed,'good'],['l','Lost',this.lost,this.lost?'bad':'good']]});
+ end(out){
+  const st=out?0:this.missed===0&&this.wrong<=1?3:this.missed<=1&&this.wrong<=3?2:1;
+  reveal(this,{result:out?'lose':st>=2?'win':'close',stars:out?undefined:st,
+   kicker:out?`Three frauds slipped through at ${fmtT(this.T)} · ${this.caught} caught`:`45 seconds · ${this.caught} frauds caught · ${this.missed} slipped through · ${this.wrong} false alarms`,
+   line:out?'The fraudsters won this round. They are fast.':st===3?'Every fraud blocked, and real guests got their cars.':st===2?'You stopped most of the fraud without upsetting many real guests.':'Fraud is sneaky. The red list keeps changing.',
+   story:'At Zoomcar I wrote the SQL behind a Metabase report that flagged suspicious bookings by checking the device IDs of past fraud cases, so the team could stop repeat offenders before the trip started.',
+   stats:out?[['c','Caught',this.caught,'good'],['m','Slipped',this.missed,'bad']]:[['s','Stars','★'.repeat(st)+'☆'.repeat(3-st),'hot'],['c','Caught',this.caught,'good'],['m','Slipped',this.missed,this.missed?'bad':''],['w','False alarms',this.wrong,this.wrong?'bad':'']]});
  },
  stop(){cancelAnimationFrame(this.raf);}
 });
+
+/* ============ STAFF BADGE ============ */
+let bests={},bname='';
+function saveProgress(){try{localStorage.setItem('rb-play',JSON.stringify({c:[...cleared],b:bests,n:bname}));}catch(_){}}
+function loadProgress(){try{const d=JSON.parse(localStorage.getItem('rb-play')||'{}');(d.c||[]).forEach(x=>{if(GAMES.some(g=>g.id===x))cleared.add(x);});bests=d.b||{};bname=d.n||'';}catch(_){}}
+const starTotal=()=>['store','markets','fraud'].reduce((a,id)=>a+((bests[id]&&bests[id].stars)||0),0);
+function updBadgeBtn(){const b=$('badgebtn');if(!b)return;const n=cleared.size,T=GAMES.length;
+ b.classList.toggle('ready',n>=3);b.setAttribute('aria-disabled',n<3?'true':'false');
+ b.textContent=n>=T?'Your certified badge ★':n>=3?'Your staff badge ★':`Staff badge · clear ${3-n} more game${3-n>1?'s':''}`;}
+function rrect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function drawBadge(cv){
+ const W=600,H=840,c=cv.getContext('2d');cv.width=W;cv.height=H;
+ const T=GAMES.length,n=cleared.size,full=n>=T,nm=(bname||'Your name').toUpperCase();
+ const D='"Archivo","Arial Black",Arial,sans-serif',M='"IBM Plex Mono",Menlo,monospace';
+ c.clearRect(0,0,W,H);rrect(c,0,0,W,H,34);c.fillStyle='#0B1218';c.fill();
+ c.save();rrect(c,0,0,W,H,34);c.clip();c.fillStyle='#F2B600';c.fillRect(0,0,W,168);c.restore();
+ c.fillStyle='#E7EBEE';rrect(c,W/2-46,22,92,18,9);c.fill();
+ c.fillStyle='#13202A';c.font=`900 46px ${D}`;c.textBaseline='alphabetic';
+ c.fillText(full?'CERTIFIED TO DO':'TRAINEE: LEARNING',36,98);c.fillText("RAJAS'S JOB",36,146);
+ c.font=`500 15px ${M}`;c.textAlign='right';c.fillText('STAFF ID',W-36,146);c.textAlign='left';
+ rrect(c,36,204,170,206,14);c.fillStyle='#1A2631';c.fill();c.setLineDash([8,7]);c.strokeStyle='#33475a';c.lineWidth=3;c.stroke();c.setLineDash([]);
+ c.fillStyle='#F2B600';c.font=`900 120px ${D}`;c.textAlign='center';c.fillText((bname||'?').trim().charAt(0).toUpperCase()||'?',121,350);c.textAlign='left';
+ let fs=54;c.font=`900 ${fs}px ${D}`;while(c.measureText(nm).width>336&&fs>26){fs-=2;c.font=`900 ${fs}px ${D}`;}
+ c.fillStyle='#E6EDF2';c.fillText(nm,228,258);
+ c.fillStyle='#F2B600';c.font=`500 15px ${M}`;c.fillText(`E-COMMERCE & OPS · ${n} OF ${T} SHIFTS`,228,290);
+ const tiles=[['SHIFTS CLEARED',`${n} / ${T}`],['STARS',`★ ${starTotal()} / 9`],['FRAUDS CAUGHT',bests.fraud?String(bests.fraud.stat||0):'—'],['BEST COMBO',bests.inbox?'×'+(bests.inbox.stat||0):'—']];
+ tiles.forEach(([l,v],i)=>{const x=228+(i%2)*170,y=314+Math.floor(i/2)*96;rrect(c,x,y,158,84,10);c.fillStyle='#121C25';c.fill();c.strokeStyle='#26343F';c.lineWidth=2;c.stroke();
+  c.fillStyle='#8B9AA6';c.font=`500 12px ${M}`;c.fillText(l,x+14,y+26);c.fillStyle='#E6EDF2';c.font=`900 30px ${D}`;c.fillText(v,x+14,y+66);});
+ c.save();c.translate(W/2,566);c.rotate(-.035);const st=full?'HIRED! STARTS MONDAY, 9 AM':`CLEAR ALL ${T} TO GET CERTIFIED`;
+ c.font=`900 ${full?34:28}px ${D}`;const sw=c.measureText(st).width+40;rrect(c,-sw/2,-36,sw,64,6);c.lineWidth=5;c.strokeStyle=full?'#4FD39A':'#F2B600';if(!full)c.setLineDash([12,8]);c.stroke();c.setLineDash([]);
+ c.fillStyle=full?'#4FD39A':'#F2B600';c.textAlign='center';c.fillText(st,0,10);c.restore();c.textAlign='left';
+ c.strokeStyle='#26343F';c.lineWidth=2;c.setLineDash([6,6]);c.beginPath();c.moveTo(0,676);c.lineTo(W,676);c.stroke();c.setLineDash([]);
+ const d=new Date(),no=String((nm.split('').reduce((a,ch)=>a*31+ch.charCodeAt(0),7)>>>0)%9000+1000);
+ c.fillStyle='#8B9AA6';c.font=`500 15px ${M}`;c.fillText(`ISSUED ${d.getDate()} ${d.toLocaleString('en',{month:'short'}).toUpperCase()} ${d.getFullYear()} · NO. ${no}`,36,722);
+ c.fillStyle='#F2B600';c.fillText('rajas05.github.io/play',36,766);
+ let x=W-190;for(let i=0;i<34;i++){const w=[2,1,3,1,2][(i*7+no.charCodeAt(i%4))%5];c.fillStyle='#E6EDF2';c.fillRect(x,700,w,64);x+=w+2;}
+}
+function showBadge(){
+ if(cleared.size<3){toast(`Clear ${3-cleared.size} more game${3-cleared.size>1?'s':''} to unlock your staff badge.`);return;}
+ stopCur();const full=cleared.size>=GAMES.length;
+ $('ctitle').innerHTML='<b>Staff badge</b> · '+(full?'certified':'trainee');$('cdot').className='dot';$('crestart').hidden=true;
+ chips([['sh','Shifts',cleared.size+' / '+GAMES.length,full?'good':''],['st','Stars','★ '+starTotal()+' / 9','hot']]);
+ CB.innerHTML=`<div class="bview"><canvas id="bcv" width="600" height="840" role="img" aria-label="Your staff badge"></canvas><div class="bside">
+  <p class="lbl" style="color:var(--tape)">${full?'All 7 shifts cleared':'Trainee · '+cleared.size+' of '+GAMES.length+' shifts'}</p>
+  <h2>${full?"You're certified to do my job.":'Your staff badge'}</h2>
+  <p>${full?'Put your name on it and show it off. You earned it.':`Clear all ${GAMES.length} games to swap "Trainee" for "Certified" and get hired.`}</p>
+  <div class="left"><label for="bname">Name on the badge</label><input id="bname" maxlength="18" autocomplete="name" placeholder="Type your name" value="${bname.replace(/"/g,'&quot;')}"></div>
+  <div class="row"><a class="sbtn li" id="bshare" target="_blank" rel="noopener">Share on LinkedIn ↗</a><button class="sbtn" type="button" id="bsave">Save image</button><button class="sbtn" type="button" id="bback">Back to games</button></div></div></div>`;
+ const cv=$('bcv'),upd=()=>{drawBadge(cv);const s=starTotal(),t=full?`I just got certified to do Rajas Belsare's job: all 7 operations games cleared with ${s}/9 stars. Think you can do it? ${SITE}`:`I've cleared ${cleared.size} of 7 shifts in Rajas Belsare's "Can you do my job?" game. Still a trainee, for now. Can you get certified? ${SITE}`;$('bshare').href='https://www.linkedin.com/feed/?shareActive=true&text='+encodeURIComponent(t);};
+ (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(upd);upd();
+ $('bname').oninput=e=>{bname=e.target.value.trim();saveProgress();upd();};
+ $('bsave').onclick=()=>{try{const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='staff-badge.png';document.body.appendChild(a);a.click();a.remove();toast('Saved. If nothing downloaded, take a screenshot instead.');}catch(_){toast('Take a screenshot to save your badge.');}};
+ $('bback').onclick=()=>open(cur||'store',false);
+ if(full){confetti();sfx('win');}else sfx('good');
+ $('console').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+}
 
 /* hints: shown when the player stalls */
 const HAND='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10l5.2 1a2 2 0 0 1 1.6 2.2L18.6 20H10.2l-4.3-5.6a1.4 1.4 0 0 1 2.1-1.8L9 14z" fill="#fff" stroke="#0B1218" stroke-width="1.4" stroke-linejoin="round"/></svg>';
@@ -995,13 +1125,12 @@ G('cause').hint=function(){const s=CASES[this.ci].steps[this.si];
 G('plates').hint=function(){const live=this.P.filter(p=>!p.broken&&!p.owner);if(!live.length)return null;const worst=live.reduce((a,b)=>a.w>b.w?a:b);
  const free=this.team.findIndex(m=>m.cd<=0);if(free>=0&&live.length>1&&(!this.usedMate||worst.w<60)){const calm=live.reduce((a,b)=>a.w<b.w?a:b);return{from:CB.querySelector(`.mate[data-m="${free}"]`),to:calm.el,text:'Drag a teammate onto a calm plate so you can focus on the shaky ones.'};}
  return{from:worst.el,text:'Tap the plate with the shortest ring before it falls!'};};
-G('markets').hint=function(){const urgent=this.M.findIndex(m=>m.ign>=2);let i=urgent;
- if(i<0){let best=0;this.M.forEach((m,j)=>{if(m.val*this.pct(m)>this.M[best].val*this.pct(this.M[best]))best=j;});i=best;}
- return{from:this.bubs[i],text:urgent>=0?`${this.M[i].n} has been ignored. Tap it before it shrinks.`:`Tap a country to focus on it. ${this.M[i].n} grows the most right now.`};};
-G('pack').hint=function(){const p=this.P.filter(p=>!p.held).sort((a,b)=>b.x-a.x)[0];if(!p)return null;return{from:p.el,to:this.chutes[p.k],text:this.plain?`${p.city} is in ${COUNTRY[p.k].n}. Drag it to ${COUNTRY[p.k].c}.`:'Drag the box into the chute with the same colour.'};};
+G('markets').hint=function(){let k=-1,w=0;if(this.focus>=0&&!this.L.some((m,i)=>i!==this.focus&&m.idle>4))return null;this.L.forEach((m,i)=>{if(i!==this.focus&&m.idle>w){w=m.idle;k=i;}});if(k>=0&&w>3)return{from:this.lanes[k],text:`${this.L[k].n} is cooling down. Press and hold its lane to push it.`};let b=0;this.L.forEach((m,i)=>{if(this.pct(m)*m.val>this.pct(this.L[b])*this.L[b].val)b=i;});return{from:this.lanes[b],text:`Press and hold a lane to push it. ${this.L[b].n} grows fastest right now.`};};
+G('fraud').hint=function(){const f=this.C.filter(c=>c.fraud&&!c.done).sort((a,b)=>b.y-a.y)[0];if(f)return{from:f.el,text:f.kind==='dev'?`Device ${f.el.querySelector('.dev').textContent} is on the red list. Tap the booking to block it.`:'Brand-new account booking a long trip. Tap to block it.'};return{from:$('bl'),text:"Compare each booking's device ID with this red list."};};
 
 $('mute').onclick=()=>{muted=!muted;$('mute').textContent=muted?'Sound off':'Sound on';$('mute').setAttribute('aria-pressed',String(muted));};
 /* boot */
+loadProgress();$('badgebtn').onclick=showBadge;
 const want=(location.hash||'').replace('#','');
 open(GAMES.some(g=>g.id===want)?want:'store');
 const cp=$('copy');
