@@ -289,9 +289,9 @@ h1 .tape{background:var(--tape);color:var(--on-tape);padding:0 .08em;width:max-c
 .lane .lh span{font-family:var(--mono);font-size:10px;color:var(--smute);letter-spacing:.06em}
 .track{position:relative;height:100%;margin-right:70px}
 .track::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:repeating-linear-gradient(90deg,var(--sline) 0 12px,transparent 12px 22px)}
-.ghost{position:absolute;top:22px;bottom:8px;width:2px;background:var(--sink);opacity:.55}
-.ghost span{position:absolute;bottom:100%;left:50%;translate:-50% 2px;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--smute)}
-.ghost::after{content:"";position:absolute;top:0;left:2px;width:14px;height:10px;background:var(--sink);clip-path:polygon(0 0,100% 50%,0 100%)}
+.rflag{position:absolute;top:22px;bottom:8px;width:2px;background:var(--sink);opacity:.55}
+.rflag span{position:absolute;bottom:100%;left:50%;translate:-50% 2px;white-space:nowrap;font-family:var(--mono);font-size:10px;color:var(--smute)}
+.rflag::after{content:"";position:absolute;top:0;left:2px;width:14px;height:10px;background:var(--sink);clip-path:polygon(0 0,100% 50%,0 100%)}
 .runner{position:absolute;top:50%;translate:-50% -50%;width:58px;height:58px;border-radius:50%;background:var(--lc);color:#0B1218;display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:500;box-shadow:0 0 0 4px var(--scr2);z-index:2;transition:transform .15s}
 .runner::before{content:"";position:absolute;right:100%;top:50%;translate:0 -50%;height:12px;width:0;border-radius:6px;background:linear-gradient(90deg,transparent,var(--lc));opacity:.9;transition:width .2s}
 .lane.go{border-color:var(--lc);background:color-mix(in srgb,var(--lc) 14%,var(--scr2))}
@@ -898,7 +898,7 @@ add({id:'markets',icon:'markets',name:'Market race',area:'Strategy',mins:'45 sec
   chips([['mo','Month','1 / 11'],['tot','Your total','$'+RST.toFixed(0)+'M'],['me','My team','$'+RME.toFixed(1)+'M','hot']]);
   CB.innerHTML=`<div class="race"><div class="goalrow" style="margin:0"><span class="lbl">Goal</span><div class="gb"><i id="gbi"></i>${RSTARS.map(s=>`<s style="left:${(s-RST)/(RSTARS[2]-RST)*100}%" data-s="${s}">★</s>`).join('')}</div></div>
    <div class="rnews" id="rnews"><b>Tip</b><span>Hold a lane to push it. Small lanes grow fastest, but don't let any lane go cold.</span></div>
-   <div class="lanes">${this.L.map((m,i)=>`<button type="button" class="lane" data-i="${i}" style="--lc:var(${COUNTRY[i].v})" aria-label="Hold to push ${m.n}. Key ${i+1}."><span class="lh"><b>${m.c}</b><span data-v></span></span><span class="track"><span class="ghost" style="left:${m.me/m.max*100}%"><span>My team $${m.me}M</span></span><span class="runner" data-r>${m.c}</span></span><span class="tag" data-t hidden></span></button>`).join('')}</div>
+   <div class="lanes">${this.L.map((m,i)=>`<button type="button" class="lane" data-i="${i}" style="--lc:var(${COUNTRY[i].v})" aria-label="Hold to push ${m.n}. Key ${i+1}."><span class="lh"><b>${m.c}</b><span data-v></span></span><span class="track"><span class="rflag" style="left:${m.me/m.max*100}%"><span>My team $${m.me}M</span></span><span class="runner" data-r>${m.c}</span></span><span class="tag" data-t hidden></span></button>`).join('')}</div>
    <div class="rfoot"><span class="lbl">Year</span><div class="months" id="months">${'<i></i>'.repeat(11)}</div></div></div>`;
   this.lanes=[...CB.querySelectorAll('.lane')];
   this.lanes.forEach((el,i)=>{
