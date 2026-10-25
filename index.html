@@ -684,14 +684,14 @@ const CITY=[{n:'Nashik',x:.18,y:.36},{n:'Pune',x:.15,y:.78},{n:'Indore',x:.48,y:
 const HUB={x:.5,y:.6};
 const CREWS={m:{n:'Mechanic',i:'wrench',v:'--fr'},c:{n:'Spare car',i:'car',v:'--tape'},s:{n:'Support',i:'headset',v:'--de'}};
 const INC3=[["Car won't start",'m'],['Flat tyre','m'],['Host cancelled','c'],['Host denied booking','c'],["Guest can't find car",'s'],['Delivery running late','s']];
-add({id:'cities',icon:'cities',name:'Five cities',area:'City ops',mins:'60 sec',
+add({id:'cities',icon:'cities',name:'Five cities',area:'City ops',mins:'40 sec',
  title:'Five cities, one Saturday',
  how:'Car-sharing problems pop up across five cities. Each one shows a picture of the crew it needs. <b>Drag that crew</b> onto the city.',
  goal:'Mechanic for car trouble, Spare car for host problems, Support for lost guests. Keep happiness above the white line.',
  art(){return`<svg viewBox="0 0 340 220"><rect width="340" height="220" rx="10" fill="#121C25"/>${[[60,80],[50,180],[170,50],[280,55],[290,170]].map(([x,y])=>`<path d="M170 145 L${x} ${y}" stroke="#8B9AA6" stroke-dasharray="5 6" opacity=".5"/><circle cx="${x}" cy="${y}" r="10" fill="#1A2631" stroke="#8B9AA6" stroke-width="2"/>`).join('')}<circle cx="280" cy="55" r="10" fill="#FF6B5A"/><rect x="230" y="12" width="104" height="30" rx="7" fill="#E6EDF2"/><rect x="235" y="16" width="22" height="22" rx="5" fill="#6CB6FF"/><path d="M243 22a4 4 0 0 0 5 5l-6 6-2-2z" stroke="#0B1218" stroke-width="2" fill="none"/><text x="262" y="31" font-size="11" font-weight="700" fill="#0B1218">Won't start</text><rect x="163" y="138" width="14" height="14" fill="#F2B600" transform="rotate(45 170 145)"/><circle cx="225" cy="100" r="13" fill="#6CB6FF" stroke="#0B1218" stroke-width="2"/></svg>`;},
  start(){
-  this.C=CITY.map(c=>({...c,inc:null}));this.crew=['m','m','c','c','s','s'].map((t,i)=>({t,i,busy:false}));this.runs=[];this.joy=70;this.fixed=0;this.missed=0;this.T=0;this.nx=1;this.dur=60;
-  chips([['left','Time','1:00'],['fx','Fixed','0','good'],['ms','Missed','0']]);
+  this.C=CITY.map(c=>({...c,inc:null}));this.crew=['m','m','c','c','s','s'].map((t,i)=>({t,i,busy:false}));this.runs=[];this.joy=70;this.fixed=0;this.missed=0;this.T=0;this.nx=.6;this.dur=40;
+  chips([['left','Time','0:40'],['fx','Fixed','0','good'],['ms','Missed','0']]);
   CB.innerHTML=`<div class="gauge"><span class="lbl">Guest happiness</span><div class="bar"><i id="joy"></i><u></u></div><b id="joyn">70</b></div>
    <div class="cmap"><div class="map" id="map"><canvas id="mapcv"></canvas><div class="hub" style="left:${HUB.x*100}%;top:${HUB.y*100}%"><i></i><span>OPS DESK</span></div>
    ${this.C.map((c,i)=>`<div class="city" data-c="${i}" style="left:${c.x*100}%;top:${c.y*100}%" role="button" tabindex="0" aria-label="${c.n}"><span class="pin"></span><span class="nm">${c.n}</span></div>`).join('')}</div>
@@ -716,7 +716,7 @@ add({id:'cities',icon:'cities',name:'Five cities',area:'City ops',mins:'60 sec',
  loop(now){if(!this.running)return;
   const dt=Math.min(.1,(now-this.last)/1000);this.last=now;this.T+=dt;if(this.T>=this.dur){this.end();return;}
   let ch=false;
-  if(this.T>=this.nx){const free=this.C.map((c,i)=>i).filter(i=>!this.C[i].inc);if(free.length){const [txt,need]=pick(INC3);this.C[pick(free)].inc={txt,need,age:0,ttl:Math.max(7.5,11-this.T/15),sent:false};ch=true;}this.nx=this.T+Math.max(1.6,3-this.T/35);}
+  if(this.T>=this.nx){const free=this.C.map((c,i)=>i).filter(i=>!this.C[i].inc);if(free.length){const [txt,need]=pick(INC3);this.C[pick(free)].inc={txt,need,age:0,ttl:Math.max(6.5,9.5-this.T/10),sent:false};ch=true;}this.nx=this.T+Math.max(1.3,2.4-this.T/25);}
   this.C.forEach((c,i)=>{if(c.inc&&!c.inc.sent){c.inc.age+=dt;if(c.inc.age>=c.inc.ttl){c.inc=null;this.missed++;this.joy=clamp(this.joy-9,0,100);bad(this.pins[i],`${c.n}: the guest gave up.`);ch=true;}}});
   const mp=$('map');if(!mp)return;const W=mp.clientWidth,H=mp.clientHeight;
   this.runs=this.runs.filter(r=>{r.t+=dt;const c=this.C[r.k],f=clamp(r.t/r.tt,0,1),a=r.back?c:HUB,b=r.back?HUB:c;
@@ -732,7 +732,7 @@ add({id:'cities',icon:'cities',name:'Five cities',area:'City ops',mins:'60 sec',
    if(c.inc){if(!b){b=document.createElement('div');p.prepend(b);}b.className='need'+(c.inc.sent?' sent':'');b.style.setProperty('--nc',`var(${CREWS[c.inc.need].v})`);b.innerHTML=`${svg(CREWS[c.inc.need].i)}<span>${c.inc.sent?'Help on the way':c.inc.txt}</span>${c.inc.sent?'':'<div class="tl"><i></i></div>'}`;}else if(b)b.remove();});
   $('joy').style.width=this.joy+'%';$('joyn').textContent=Math.round(this.joy);chip('fx',this.fixed,'good');chip('ms',this.missed,this.missed?'bad':'');},
  end(){const won=this.joy>=85;
-  reveal(this,{result:won?'win':this.joy>=70?'close':'lose',kicker:`60 seconds · ${this.fixed} fixed · ${this.missed} missed · happiness ${Math.round(this.joy)}`,
+  reveal(this,{result:won?'win':this.joy>=70?'close':'lose',kicker:`40 seconds · ${this.fixed} fixed · ${this.missed} missed · happiness ${Math.round(this.joy)}`,
    line:won?'Five cities, six crews, and happy guests almost everywhere.':'Five cities at once is tough. That is the point.',
    story:'At Zoomcar I ran operations for exactly these five cities with a team of 40+, and cut guest problems from over 15% of trips to under 10%. A host policy I designed cut host denials from 1.50% to 0.54% in five weeks.',
    stats:[['f','Fixed',this.fixed,'good'],['m','Missed',this.missed,this.missed?'bad':''],['j','Happiness',Math.round(this.joy),won?'good':'bad']]});},
