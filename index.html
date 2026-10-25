@@ -6,6 +6,14 @@
 <meta property="og:title" content="Rajas Belsare · Can you do my job?">
 <meta property="og:description" content="Seven quick games from my work in e-commerce and operations. Pick one and see if you can do my job.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://rajas05.github.io/play/">
+<meta property="og:image" content="https://rajas05.github.io/play/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Can you do my job? Seven playable games by Rajas Belsare">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://rajas05.github.io/play/og.jpg">
+<meta name="author" content="Rajas Belsare">
 <meta name="theme-color" content="#F2B600">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23F2B600'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Arial' font-weight='900' font-size='16' fill='%2313202A'%3ERB%3C/text%3E%3C/svg%3E">
 <title>Rajas Belsare · Can you do my job?</title>
@@ -323,6 +331,10 @@ h1 .tape{background:var(--tape);color:var(--on-tape);padding:0 .08em;width:max-c
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
 
 /* feedback, hints, win/lose */
+.share{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px;padding-top:14px;border-top:1px solid var(--sline)}
+.share .lbl{margin-right:4px}
+.sbtn.li{background:#0A66C2;border-color:#0A66C2;color:#fff}
+.sbtn.li:hover{background:#fff;color:#0A66C2;border-color:#fff}
 .spark{position:absolute;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:40;animation:spark .7s ease-out forwards}
 @keyframes spark{to{transform:translate(var(--dx),var(--dy)) rotate(200deg);opacity:0}}
 .conf{position:absolute;top:-14px;width:9px;height:14px;z-index:40;pointer-events:none;border-radius:2px;animation:conf 2.4s cubic-bezier(.2,.6,.4,1) forwards}
@@ -415,6 +427,7 @@ footer.base{padding-block:20px 36px;color:var(--muted);display:flex;justify-cont
 <script>
 (function(){
 "use strict";
+const SITE="https://rajas05.github.io/play";
 const RESUME="https://drive.google.com/file/d/1cd2jhfL5ImKv0MYdKVs6DDxooTG0OSkj/view?usp=sharing";
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
@@ -516,9 +529,13 @@ function reveal(g,{kicker,line,story,stats,result='win',stars}){
   g.running=false;g.stop&&g.stop();disarm();cleared.add(g.id);renderBoard();$('cdot').className='dot';if(stats)chips(stats);
   const next=GAMES[(GAMES.indexOf(g)+1)%GAMES.length];
   const stamp={win:'You win!',close:'So close!',lose:'Game over'}[result];
+  const what=stars!==undefined?`I got ${'★'.repeat(stars)}${'☆'.repeat(3-stars)} (${stars}/3 stars) on "${g.name}"`:result==='win'?`I beat "${g.name}"`:result==='close'?`I nearly beat "${g.name}"`:`"${g.name}" beat me`;
+  const brag=`${what} in Rajas Belsare's "Can you do my job?" game: 7 one-minute games built from his real work in e-commerce and operations. Can you do better? ${SITE}#${g.id}`;
   CB.innerHTML=`<div class="reveal"><div class="stamp ${result}">${stamp}${stars!==undefined?`<span class="st">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</span>`:''}</div><p class="kicker lbl">${kicker}</p><p class="rv-1">${line}</p><p class="rv-2"><span>That's exactly what I do.</span></p><p class="rv-3">${story}</p>
-   <div class="row"><button class="sbtn primary" type="button" id="rv-next">Next game: ${next.name} →</button><button class="sbtn" type="button" id="rv-again">Play again</button><a class="sbtn" href="${RESUME}" target="_blank" rel="noopener">Download resume ↗</a></div></div>`;
+   <div class="row"><button class="sbtn primary" type="button" id="rv-next">Next game: ${next.name} →</button><button class="sbtn" type="button" id="rv-again">Play again</button><a class="sbtn" href="${RESUME}" target="_blank" rel="noopener">Download resume ↗</a></div>
+   <div class="share"><span class="lbl">Share your score</span><a class="sbtn li" href="https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(brag)}" target="_blank" rel="noopener">Share on LinkedIn ↗</a><a class="sbtn" href="https://wa.me/?text=${encodeURIComponent(brag)}" target="_blank" rel="noopener">WhatsApp ↗</a><button class="sbtn" type="button" id="rv-copy">Copy text</button></div></div>`;
   $('rv-next').onclick=()=>open(next.id,true);$('rv-again').onclick=()=>begin(g);
+  $('rv-copy').onclick=()=>{const b=$('rv-copy'),ok=()=>{b.textContent='Copied!';setTimeout(()=>b.textContent='Copy text',1600);};try{navigator.clipboard.writeText(brag).then(ok,()=>toast(brag));}catch(_){toast(brag);}};
   if(result==='win'){confetti();sfx('win');}else sfx(result==='close'?'good':'lose');
   say(stamp+" That's exactly what I do.");
 }
@@ -881,7 +898,7 @@ add({id:'markets',icon:'markets',name:'Grow the market',area:'Strategy',mins:'45
   this.raf=requestAnimationFrame(t=>this.loop(t));},
  end(){const tot=this.M.reduce((a,m)=>a+m.val,0),st=MSTARS.filter(s=>tot>=s).length;
   reveal(this,{result:st>=2?'win':st===1?'close':'lose',stars:st,kicker:`11 months · You grew $${MKST.toFixed(0)}M into $${tot.toFixed(1)}M · My team did $${MKME.toFixed(1)}M`,
-   line:tot>=MKME?'You beat my team's real numbers. We should definitely talk.':st===3?'Three stars. You balanced the big markets and the fast-growing ones.':st===2?'Two stars. Good growth across Europe.':'Growing four markets at once is hard. Ignored ones shrink fast.',
+   line:tot>=MKME?"You beat my team's real numbers. We should definitely talk.":st===3?'Three stars. You balanced the big markets and the fast-growing ones.':st===2?'Two stars. Good growth across Europe.':'Growing four markets at once is hard. Ignored ones shrink fast.',
    story:'Over 11 months at Pattern, the brands my team manages grew from $40.3M to $78.5M in the UK and from $36.6M to $55.6M in Germany, more than tripled in France and more than doubled in Spain. The trick is putting the team where it compounds, without letting any market fall behind.',
    stats:[['s','Stars','★'.repeat(st)+'☆'.repeat(3-st),'hot'],['y','You','$'+tot.toFixed(1)+'M',st>=2?'good':''],['m','My team','$'+MKME.toFixed(1)+'M']]});},
  stop(){cancelAnimationFrame(this.raf);removeEventListener('resize',this.onR);}
