@@ -609,8 +609,8 @@ add({id:'store',icon:'store',name:'Run the store',area:'E-commerce',mins:'40 sec
  end(){
   const u=Math.round(this.units),st=STARS1.filter(s=>u>=s).length;
   reveal(this,{result:st>=2?'win':st===1?'close':'lose',stars:st,kicker:`9 PM · ${'★'.repeat(st)}${'☆'.repeat(3-st)} · ${u} units · $${(u*29).toLocaleString()} sales · ${this.fixed}/${this.alarms} alarms fixed`,
-   line:st===3?'Three stars. Four countries stayed stocked, and every alarm got the right fix.':st===2?'Two stars. A good day in four countries.':st===1?'One star. Four countries at once is a lot. I run thirty brands like this.':'A tough day. Stock and alarms add up fast.',
-   story:'Restocking, compliance notices and review problems are a normal day for me. At Pattern I lead e-commerce for 30 brands across 10 European Amazon marketplaces, and in 11 months we grew them from $94M to $175M.',
+   line:st===3?'Three stars. Four countries stayed stocked, and every alarm got the right fix.':st===2?'Two stars. A good day in four countries.':st===1?'One star. Four countries at once is a lot. My team runs thirty brands like this.':'A tough day. Stock and alarms add up fast.',
+   story:'Restocking, compliance notices and review problems are a normal day on my team. At Pattern I lead a team of e-commerce project managers running 30 brands across 10 European Amazon marketplaces, and in 11 months the team grew them from $94M to $175M.',
    stats:[['s','Stars','★'.repeat(st)+'☆'.repeat(3-st),'hot'],['u','Units',u,'good'],['f','Alarms fixed',this.fixed+' / '+this.alarms],['o','Out of stock',Math.round(this.oos)+'s',this.oos>8?'bad':'']]});
  },
  stop(){cancelAnimationFrame(this.raf);removeEventListener('resize',this.onR);}
@@ -657,7 +657,7 @@ add({id:'inbox',icon:'inbox',name:'Monday, 9 AM',area:'Team ops',mins:'30 sec',
  end(won){const secs=(performance.now()-this.t0)/1000;
   reveal(this,{result:won?'win':this.routed>=8?'close':'lose',kicker:won?`Inbox zero in ${fmtT(secs)} · best combo ×${this.best} · ${this.wrong} bounced`:`The queue hit 8 · ${this.routed} of 12 routed`,
    line:won?'Twelve escalations, each to the team that owns it, before the queue got out of hand.':'The queue won this time. Mondays usually try.',
-   story:'At Pattern I gave every type of problem a clear owner and built a tool that files tasks straight to them in Asana. Escalations dropped by more than half while my team grew from 12 to 17.',
+   story:'At Pattern I gave every type of problem a clear owner on my team and built a tool that files tasks straight to them in Asana. Escalations dropped by more than half while the team grew from 12 to 17.',
    stats:[['r','Routed',this.routed+' / 12',won?'good':'bad'],['b','Best combo','×'+this.best,'hot'],['w','Bounced',this.wrong]]});},
  stop(){clearTimeout(this.sp);}
 });
@@ -825,7 +825,7 @@ add({id:'plates',icon:'plates',name:'Spin 12 brands',area:'Leadership',mins:'50 
   this.raf=requestAnimationFrame(t=>this.loop(t));},
  end(won){reveal(this,{result:won?'win':'lose',kicker:won?`50 seconds · ${this.P.length} brands spinning · ${this.drops} dropped`:`Three brands down at ${fmtT(this.T)}`,
    line:won?`You kept ${this.P.length} brands spinning, and you learned when to delegate.`:'Twelve plates is a lot. Now picture thirty.',
-   story:'I lead e-commerce for 30 brands at once with a team of 17, and I gave each person clear ownership so nothing falls. Last year we launched five brands that made $18.4M in their first year, and grew PetSafe from $1.8M to $18.3M.',
+   story:'My team of 17 looks after 30 brands at once. My job is to oversee all of it and make sure every brand has a clear owner, so nothing falls. Last year the team launched five new brands that made $18.4M in their first year.',
    stats:[['b','Brands',this.P.length],['d','Dropped',this.drops,this.drops?'bad':'good']]});},
  stop(){cancelAnimationFrame(this.raf);}
 });
@@ -842,7 +842,7 @@ add({id:'markets',icon:'markets',name:'Grow the market',area:'Strategy',mins:'45
  art(){return`<svg viewBox="0 0 340 220"><rect width="340" height="220" rx="10" fill="#121C25"/>${[[95,62,44,'#FF6B6B','UK','+$5M'],[245,74,40,'#4FD39A','DE','+$3M'],[150,145,22,'#6CB6FF','FR','+$2M'],[75,188,18,'#C79BFF','ES','!']].map(([x,y,r,c,t,g],i)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" opacity="${i===2?.5:.2}" stroke="${c}" stroke-width="${i===2?6:3}"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="${r>30?16:12}" font-weight="900" fill="#E6EDF2">${t}</text><rect x="${x-20}" y="${y-r-18}" width="40" height="14" rx="7" fill="${g==='!'?'#FF6B5A':'#4FD39A'}"/><text x="${x}" y="${y-r-8}" text-anchor="middle" font-size="9" font-weight="700" fill="#0B1218">${g}</text>`).join('')}<text x="150" y="182" text-anchor="middle" font-size="10" font-weight="700" fill="#F2B600">FOCUS</text></svg>`;},
  start(){
   this.M=MKS.map((m,i)=>({...m,...COUNTRY[i],val:m.b,ign:0,boost:1,bt:0}));this.mo=0;this.T=0;this.focus=-1;this.picks=0;
-  chips([['mo','Month','1 / 11'],['tot','Your total','$'+MKST.toFixed(0)+'M'],['me','Rajas','$'+MKME.toFixed(0)+'M','hot']]);
+  chips([['mo','Month','1 / 11'],['tot','Your total','$'+MKST.toFixed(0)+'M'],['me','My team','$'+MKME.toFixed(0)+'M','hot']]);
   CB.innerHTML=`<div class="goalrow"><span class="lbl">Goal</span><div class="gb"><i id="gbi"></i>${MSTARS.map(s=>`<s style="left:${(s-MKST)/(MSTARS[2]-MKST)*100}%" data-s="${s}">★</s>`).join('')}</div></div>
    <div class="mkwrap"><div class="emap" id="emap"><canvas id="ecv"></canvas>${this.M.map((m,i)=>`<button type="button" class="mb" data-i="${i}" style="left:${m.x*100}%;top:${m.y*100}%;--mc:var(${COUNTRY[i].v})" aria-label="Focus on ${m.n}. Key ${i+1}."><span class="gain" data-g></span><b>${m.c}</b><span data-v></span><span class="warn" data-w></span></button>`).join('')}</div>
    <div class="tray"><span class="lbl">This month</span><div class="mclock"><i id="mbar"></i></div><div class="months" id="months">${'<i></i>'.repeat(11)}</div><div class="news" id="news">Tap a country to focus on it. When the bar fills, the month ends and it grows.</div></div></div>`;
@@ -880,10 +880,10 @@ add({id:'markets',icon:'markets',name:'Grow the market',area:'Strategy',mins:'45
   }
   this.raf=requestAnimationFrame(t=>this.loop(t));},
  end(){const tot=this.M.reduce((a,m)=>a+m.val,0),st=MSTARS.filter(s=>tot>=s).length;
-  reveal(this,{result:st>=2?'win':st===1?'close':'lose',stars:st,kicker:`11 months · You grew $${MKST.toFixed(0)}M into $${tot.toFixed(1)}M · Rajas did $${MKME.toFixed(1)}M`,
-   line:tot>=MKME?'You beat my real numbers. We should definitely talk.':st===3?'Three stars. You balanced the big markets and the fast-growing ones.':st===2?'Two stars. Good growth across Europe.':'Growing four markets at once is hard. Ignored ones shrink fast.',
-   story:'Over 11 months at Pattern, the UK grew from $40.3M to $78.5M, Germany from $36.6M to $55.6M, France more than tripled to $17.7M and Spain more than doubled to $10.7M. The trick is putting your team where it compounds, without letting anyone fall behind.',
-   stats:[['s','Stars','★'.repeat(st)+'☆'.repeat(3-st),'hot'],['y','You','$'+tot.toFixed(1)+'M',st>=2?'good':''],['m','Rajas','$'+MKME.toFixed(1)+'M']]});},
+  reveal(this,{result:st>=2?'win':st===1?'close':'lose',stars:st,kicker:`11 months · You grew $${MKST.toFixed(0)}M into $${tot.toFixed(1)}M · My team did $${MKME.toFixed(1)}M`,
+   line:tot>=MKME?'You beat my team's real numbers. We should definitely talk.':st===3?'Three stars. You balanced the big markets and the fast-growing ones.':st===2?'Two stars. Good growth across Europe.':'Growing four markets at once is hard. Ignored ones shrink fast.',
+   story:'Over 11 months at Pattern, the brands my team manages grew from $40.3M to $78.5M in the UK and from $36.6M to $55.6M in Germany, more than tripled in France and more than doubled in Spain. The trick is putting the team where it compounds, without letting any market fall behind.',
+   stats:[['s','Stars','★'.repeat(st)+'☆'.repeat(3-st),'hot'],['y','You','$'+tot.toFixed(1)+'M',st>=2?'good':''],['m','My team','$'+MKME.toFixed(1)+'M']]});},
  stop(){cancelAnimationFrame(this.raf);removeEventListener('resize',this.onR);}
 });
 
