@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Parcel Panic · Rajas Belsare</title>
+<meta name="description" content="It's Prime Day. One belt, parcels everywhere. Sort them before they fall off. A 60-second game by Rajas Belsare.">
+<meta property="og:title" content="Parcel Panic: can you survive Prime Day?">
+<meta property="og:description" content="One belt. Parcels everywhere. Sort them before they fall off.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rajasbelsare.com/game/">
+<meta property="og:image" content="https://rajasbelsare.com/game/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://rajasbelsare.com/game/og.jpg">
+<meta name="theme-color" content="#0B1218">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B1218;--panel:#13202A;--line:#22323F;--ink:#E6EDF2;--mute:#8B9AA6;--y:#F2B600;--g:#3DDC97;--r:#FF5D5D}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) 16px 8px;gap:12px}
+.brand{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-decoration:none;display:flex;align-items:center;gap:8px}
+.brand:before{content:"";width:10px;height:10px;background:var(--y)}
+.hud{display:flex;gap:16px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:13px}
+.hud b{font-family:Archivo,sans-serif;font-weight:900;font-size:24px;color:var(--ink);font-variation-settings:"wdth" 100}
+.lives{display:flex;gap:5px}
+.lives i{width:16px;height:16px;border-radius:3px;background:var(--y);display:block;transition:all .25s}
+.lives i.off{background:transparent;border:2px solid var(--line)}
+#stage{position:relative;flex:1;min-height:0}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#pads{display:grid;gap:10px;padding:10px 12px calc(14px + env(safe-area-inset-bottom));grid-template-columns:repeat(3,1fr)}
+#pads.four{grid-template-columns:repeat(4,1fr)}
+.pad{border:0;border-radius:14px;height:clamp(78px,12vh,104px);font-family:Archivo,sans-serif;font-weight:900;font-size:26px;color:#13202A;cursor:pointer;position:relative;box-shadow:0 6px 0 rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.pad small{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.75;margin-top:6px}
+.pad kbd{position:absolute;top:6px;right:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:.45}
+.pad:active,.pad.hit{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.pad.new{animation:pop .6s ease}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:none;opacity:1}}
+.ov{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(11,18,24,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.ov[hidden]{display:none}
+.card{width:100%;max-width:420px;text-align:left}
+.kick{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--y);margin-bottom:10px}
+h1{font-family:Archivo,sans-serif;font-weight:900;font-variation-settings:"wdth" 110;text-transform:uppercase;font-size:clamp(48px,14vw,68px);line-height:.88;margin:0 0 14px;letter-spacing:-.01em}
+h1 span{background:var(--y);color:#13202A;padding:2px 10px 0;display:inline-block;margin-top:6px}
+p{margin:0 0 14px;color:#C9D3DA;line-height:1.45;font-size:16px}
+.rules{list-style:none;padding:0;margin:0 0 20px;display:grid;gap:10px}
+.rules li{display:flex;gap:12px;align-items:center;font-size:15px;color:#C9D3DA}
+.rules .ic{flex:none;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Archivo,sans-serif;font-weight:900;font-size:12px;color:#13202A}
+.btn{appearance:none;border:0;border-radius:12px;background:var(--y);color:#13202A;font-family:Archivo,sans-serif;font-weight:900;font-size:20px;text-transform:uppercase;padding:16px 22px;width:100%;cursor:pointer;box-shadow:0 5px 0 #9c7600;letter-spacing:.02em}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #9c7600}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:none;border:2px solid var(--line);font-size:15px;padding:13px}
+.row{display:flex;gap:10px;margin-top:10px}
+.best{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mute);margin-top:14px;text-align:center}
+.big{font-family:Archivo,sans-serif;font-weight:900;font-size:96px;line-height:.9;color:var(--ink)}
+.rank{display:inline-block;font-family:Archivo,sans-serif;font-weight:900;text-transform:uppercase;font-size:20px;border:3px solid var(--g);color:var(--g);padding:4px 12px;border-radius:8px;transform:rotate(-3deg);margin:6px 0 16px}
+.stats{display:flex;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mute);margin-bottom:18px;flex-wrap:wrap}
+.stats b{display:block;color:var(--ink);font-size:18px;font-family:Archivo,sans-serif;font-weight:900}
+.promo{margin-top:18px;padding:14px;border:1px dashed var(--line);border-radius:12px;font-size:14px;color:var(--mute)}
+.promo a{color:var(--y);font-weight:600;text-decoration:none}
+.toast{position:absolute;left:50%;top:18%;transform:translate(-50%,0);font-family:Archivo,sans-serif;font-weight:900;text-transform:uppercase;font-size:22px;background:var(--y);color:#13202A;padding:8px 16px;border-radius:10px;z-index:4;pointer-events:none;white-space:nowrap;animation:toast 1.6s ease forwards}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,10px) scale(.9)}12%{opacity:1;transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px)}}
+.flash{position:absolute;inset:0;background:var(--r);opacity:0;pointer-events:none;z-index:3}
+.flash.on{animation:fl .35s ease}
+@keyframes fl{0%{opacity:.28}100%{opacity:0}}
+#copied{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--g);text-align:center;height:16px;margin-top:8px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <a class="brand" href="/">rajasbelsare.com</a>
+    <div class="hud">
+      <div class="lives" id="lives"><i></i><i></i><i></i></div>
+      <div>SORTED <b id="score">0</b></div>
+    </div>
+  </header>
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div class="flash" id="flash"></div>
+    <div class="ov" id="start">
+      <div class="card">
+        <div class="kick">It's Prime Day · You're on shift</div>
+        <h1>Parcel<br><span>Panic</span></h1>
+        <p>One belt. Parcels everywhere. Send each one to the right city before it falls off the end.</p>
+        <ul class="rules">
+          <li><span class="ic" style="background:var(--y)">TAP</span>Tap the city that matches the label on the lowest parcel</li>
+          <li><span class="ic" style="background:#FFD34D">★</span>Gold parcels are Prime orders: worth 5</li>
+          <li><span class="ic" style="background:var(--r)">×3</span>Three mistakes and your shift is over</li>
+        </ul>
+        <button class="btn" id="go">Start shift</button>
+        <div class="best" id="bestline"></div>
+      </div>
+    </div>
+    <div class="ov" id="over" hidden>
+      <div class="card">
+        <div class="kick" id="why">Shift over</div>
+        <div class="big" id="final">0</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mute);letter-spacing:.12em">PARCELS SORTED</div>
+        <div class="rank" id="rank">Picker</div>
+        <div class="stats">
+          <div><b id="sBest">0</b>Best</div>
+          <div><b id="sStreak">0</b>Best streak</div>
+          <div><b id="sPrime">0</b>Prime orders</div>
+          <div><b id="sTime">0s</b>On shift</div>
+        </div>
+        <button class="btn" id="again">Next shift</button>
+        <div class="row"><button class="btn ghost" id="share">Challenge a friend</button></div>
+        <div id="copied"></div>
+        <div class="promo">This is a side quest. The main game is my actual job: <a href="/">7 one-minute games at rajasbelsare.com →</a></div>
+      </div>
+    </div>
+  </div>
+  <div id="pads"></div>
+</div>
+<script>
+(()=>{
+const CITIES=[
+  {code:'PNQ',name:'Pune',col:'#F2B600'},
+  {code:'BOM',name:'Mumbai',col:'#3DDCC4'},
+  {code:'DEL',name:'Delhi',col:'#FF7A59'},
+  {code:'BLR',name:'Bengaluru',col:'#B79CFF'}
+];
+const KEYS=[['1','a','arrowleft'],['2','s','arrowdown'],['3','d','arrowright'],['4','f']];
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d'),stage=$('stage'),padsEl=$('pads');
+let W=0,H=0,DPR=1,U=1;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);const r=stage.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);U=Math.min(W/380,H/560);}
+addEventListener('resize',resize);
+let best=0;try{best=+localStorage.getItem('pp-best')||0}catch(e){}
+// audio
+let AC=null;function snd(f,d=.08,t='square',v=.05,slide=0){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;if(slide)o.frequency.exponentialRampToValueAtTime(f*slide,AC.currentTime+d);g.gain.value=v;g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g).connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+// state
+let S=null,running=false,last=0,beltOff=0;
+function newState(){return{parcels:[],fly:[],pops:[],score:0,lives:3,n:3,streak:0,bestStreak:0,prime:0,t:0,spawnT:.4,speed:0,shake:0,ended:false}}
+function buildPads(){
+  padsEl.innerHTML='';padsEl.classList.toggle('four',S.n===4);
+  for(let i=0;i<S.n;i++){const c=CITIES[i],b=document.createElement('button');b.className='pad';b.style.background=c.col;b.innerHTML=`${c.code}<small>${c.name}</small><kbd>${i+1}</kbd>`;
+    b.addEventListener('pointerdown',e=>{e.preventDefault();sort(i)});padsEl.appendChild(b)}
+}
+function lives(){[...$('lives').children].forEach((el,i)=>el.classList.toggle('off',i>=S.lives))}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;stage.appendChild(d);setTimeout(()=>d.remove(),1700)}
+function geom(){const bw=Math.min(W*.42,190*U);return{bx:W/2-bw/2,bw,size:bw*.62,end:H-6}}
+function spawn(){
+  const g=geom();const gold=S.score>=6&&Math.random()<.07;
+  // avoid long runs of same city early on
+  let c=Math.floor(Math.random()*S.n);
+  S.parcels.push({c,y:-g.size,gold,wob:Math.random()*6.28,tilt:(Math.random()-.5)*.12,s:0});
+}
+function front(){return S.parcels.find(p=>!p.s)}
+function sort(i){
+  if(!running)return;
+  const pad=padsEl.children[i];if(pad){pad.classList.add('hit');setTimeout(()=>pad.classList.remove('hit'),90)}
+  const p=front();if(!p)return;
+  const g=geom();const px=W/2,py=p.y;
+  p.s=1;
+  const tx=(i+.5)*W/S.n;
+  if(p.c===i){
+    const pts=p.gold?5:1;S.score+=pts;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);if(p.gold)S.prime++;
+    S.fly.push({x:px,y:py,tx,ty:H+40,t:0,c:p.c,gold:p.gold,ok:true,tilt:p.tilt});
+    S.pops.push({x:px+g.size*.6,y:py-g.size*.4,t:0,txt:p.gold?'+5 PRIME':'+1',col:p.gold?'#FFD34D':'#3DDC97'});
+    snd(p.gold?880:520+Math.min(S.streak,20)*18,.09,'square',.045,1.5);if(p.gold)setTimeout(()=>snd(1320,.12,'square',.04),70);
+    if(S.streak>0&&S.streak%15===0){if(S.lives<3){S.lives++;lives();toast('Clean streak! +1 life')}else toast(S.streak+' in a row!')}
+    if(S.n===3&&S.score>=25){S.n=4;buildPads();padsEl.lastChild.classList.add('new');toast('New hub: Bengaluru');snd(660,.15,'triangle',.06,1.5)}
+  }else{
+    S.fly.push({x:px,y:py,tx:px+(Math.random()<.5?-1:1)*W*.6,ty:py-40,t:0,c:p.c,gold:p.gold,ok:false,tilt:p.tilt});
+    S.pops.push({x:px+g.size*.6,y:py-g.size*.4,t:0,txt:'Wrong hub!',col:'#FF5D5D'});
+    miss();
+  }
+  $('score').textContent=S.score;
+}
+function miss(){S.lives--;S.streak=0;S.shake=.3;lives();buzz(120);snd(140,.25,'sawtooth',.06,.5);const f=$('flash');f.classList.remove('on');void f.offsetWidth;f.classList.add('on');if(S.lives<=0)end()}
+function end(){if(S.ended)return;S.ended=true;running=false;
+  setTimeout(()=>{
+    const sc=S.score,nb=sc>best;if(nb){best=sc;try{localStorage.setItem('pp-best',best)}catch(e){}}
+    $('final').textContent=sc;$('sBest').textContent=best;$('sStreak').textContent=S.bestStreak;$('sPrime').textContent=S.prime;$('sTime').textContent=Math.round(S.t)+'s';
+    $('rank').textContent=rank(sc);$('why').textContent=nb&&sc>0?'New personal best!':'Shift over';$('copied').textContent='';
+    $('over').hidden=false;snd(nb?660:220,.3,'triangle',.06,nb?1.5:.6)},550)}
+function rank(s){return s<10?'Day-one intern':s<25?'Picker':s<45?'Shift lead':s<70?'Warehouse boss':s<100?'Ops manager':'Prime Day legend'}
+// drawing
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function box(x,y,s,c,gold,tilt,alpha=1,isFront=false){
+  ctx.save();ctx.globalAlpha=alpha;ctx.translate(x,y);ctx.rotate(tilt);
+  if(isFront){ctx.strokeStyle='rgba(242,182,0,.9)';ctx.lineWidth=3;ctx.setLineDash([8,6]);rr(-s/2-9,-s/2-9,s+18,s*.8+18,10);ctx.stroke();ctx.setLineDash([])}
+  ctx.fillStyle='rgba(0,0,0,.35)';rr(-s/2+4,-s/2+8,s,s*.8,6);ctx.fill();
+  ctx.fillStyle=gold?'#FFD34D':'#C99A63';rr(-s/2,-s/2,s,s*.8,6);ctx.fill();
+  ctx.fillStyle=gold?'#F2B600':'#B5844F';ctx.fillRect(-s*.07,-s/2,s*.14,s*.8);
+  // label
+  const lw=s*.74,lh=s*.36,ly=-s/2+s*.2,cw=lw*.2;ctx.fillStyle='#fff';rr(-lw/2,ly,lw,lh,4);ctx.fill();
+  ctx.fillStyle=CITIES[c].col;rr(-lw/2,ly,cw,lh,4);ctx.fill();ctx.fillRect(-lw/2+cw-4,ly,4,lh);
+  ctx.fillStyle='#13202A';ctx.font=`900 ${Math.round(s*.19)}px Archivo, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(CITIES[c].code,-lw/2+cw+(lw-cw)/2,ly+lh/2+1);
+  if(gold){ctx.fillStyle='#13202A';ctx.font=`900 ${Math.round(s*.13)}px Archivo, sans-serif`;ctx.fillText('★ PRIME',0,s*.17)}
+  ctx.restore()}
+function draw(dt){
+  const g=geom();ctx.clearRect(0,0,W,H);
+  ctx.save();if(S&&S.shake>0){ctx.translate((Math.random()-.5)*10*S.shake,(Math.random()-.5)*6*S.shake)}
+  // floor grid
+  ctx.strokeStyle='rgba(255,255,255,.035)';ctx.lineWidth=1;for(let x=(W%40)/2;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  // belt
+  ctx.fillStyle='#0F1820';ctx.fillRect(g.bx-10,0,g.bw+20,H);
+  ctx.fillStyle='#1B2833';ctx.fillRect(g.bx,0,g.bw,H);
+  ctx.strokeStyle='#26384A';ctx.lineWidth=3;const sp=26;for(let y=(beltOff%sp)-sp;y<H;y+=sp){ctx.beginPath();ctx.moveTo(g.bx,y);ctx.lineTo(g.bx+g.bw,y);ctx.stroke()}
+  ctx.fillStyle='#2E4253';ctx.fillRect(g.bx-10,0,6,H);ctx.fillRect(g.bx+g.bw+4,0,6,H);
+  // end zone
+  const zh=Math.max(26,g.size*.35);const grd=ctx.createLinearGradient(0,H-zh*2.2,0,H);grd.addColorStop(0,'rgba(255,93,93,0)');grd.addColorStop(1,'rgba(255,93,93,.22)');ctx.fillStyle=grd;ctx.fillRect(g.bx,H-zh*2.2,g.bw,zh*2.2);
+  ctx.save();ctx.beginPath();ctx.rect(g.bx,H-10,g.bw,10);ctx.clip();for(let x=g.bx-20;x<g.bx+g.bw+20;x+=20){ctx.fillStyle='#F2B600';ctx.beginPath();ctx.moveTo(x,H);ctx.lineTo(x+10,H-10);ctx.lineTo(x+20,H-10);ctx.lineTo(x+10,H);ctx.fill()}ctx.restore();
+  if(S){
+    const f=front();
+    for(const p of S.parcels){if(p.s)continue;box(W/2+Math.sin(p.wob+S.t*3)*1.2,p.y,g.size,p.c,p.gold,p.tilt,1,p===f)}
+    for(const q of S.fly){const k=Math.min(1,q.t/(q.ok?.32:.4)),e=1-Math.pow(1-k,2);box(q.x+(q.tx-q.x)*e,q.y+(q.ty-q.y)*e-(q.ok?Math.sin(k*Math.PI)*40:0),g.size*(1-.45*e),q.c,q.gold,q.tilt+(q.ok?e*.6:e*3),1-k*.6)}
+    for(const t of S.pops){const k=t.t/.8;ctx.globalAlpha=1-k;ctx.fillStyle=t.col;ctx.font=`900 ${Math.round(20*U+4)}px Archivo, sans-serif`;ctx.textAlign='left';ctx.fillText(t.txt,Math.min(t.x,W-120),t.y-k*30);ctx.globalAlpha=1}
+    if(S.streak>=5){ctx.fillStyle='rgba(242,182,0,.9)';ctx.font=`500 ${Math.round(12*U+2)}px 'IBM Plex Mono', monospace`;ctx.textAlign='center';ctx.fillText(`STREAK ×${S.streak}`,W/2,22)}
+  }
+  ctx.restore()}
+function step(ts){
+  const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
+  if(running){
+    const g=geom();S.t+=dt;
+    S.speed=(150+Math.min(S.score,140)*2.4+Math.max(0,S.score-140)*1.2)*U*(H/(560*U))**.5;
+    beltOff+=S.speed*dt;
+    S.spawnT-=dt;
+    const gap=Math.max(.4,1.0-S.score*.009);
+    const lastP=S.parcels[S.parcels.length-1];
+    if(S.spawnT<=0&&(!lastP||lastP.y>g.size*.9)){spawn();S.spawnT=gap*(.8+Math.random()*.4)}
+    for(const p of S.parcels){if(p.s)continue;p.y+=S.speed*dt;if(p.y+g.size*.4>g.end){p.s=2;S.fly.push({x:W/2,y:p.y,tx:W/2,ty:H+g.size,t:0,c:p.c,gold:p.gold,ok:false,tilt:p.tilt});S.pops.push({x:W/2+g.size*.6,y:H-g.size*1.2,t:0,txt:'Fell off!',col:'#FF5D5D'});miss()}}
+    S.parcels=S.parcels.filter(p=>!p.s);
+  }else beltOff+=30*dt;
+  if(S){S.fly.forEach(q=>q.t+=dt);S.fly=S.fly.filter(q=>q.t<.45);S.pops.forEach(q=>q.t+=dt);S.pops=S.pops.filter(q=>q.t<.8);S.shake=Math.max(0,S.shake-dt)}
+  draw(dt);requestAnimationFrame(step)}
+function begin(){S=newState();buildPads();lives();$('score').textContent=0;$('start').hidden=true;$('over').hidden=true;running=true;snd(440,.08,'square',.04);setTimeout(()=>snd(660,.1,'square',.04),90)}
+$('go').onclick=begin;$('again').onclick=begin;
+$('share').onclick=async()=>{
+  const sc=S?S.score:0;const url='https://rajasbelsare.com/game/';
+  const text=`I sorted ${sc} parcels on Prime Day and made "${rank(sc)}" 📦 Can you beat me?`;
+  try{if(navigator.share){await navigator.share({title:'Parcel Panic',text,url});return}}catch(e){return}
+  try{await navigator.clipboard.writeText(text+' '+url);$('copied').textContent='Copied! Paste it anywhere.'}catch(e){window.open('https://wa.me/?text='+encodeURIComponent(text+' '+url),'_blank')}
+};
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();
+  if(!running){if((k===' '||k==='enter')&&(!$('start').hidden||!$('over').hidden)){e.preventDefault();begin()}return}
+  for(let i=0;i<S.n;i++)if(KEYS[i].includes(k)){e.preventDefault();sort(i);return}});
+$('bestline').textContent=best?`Your best: ${best} parcels`:'Takes about a minute. Keys 1–4 work too.';
+window.__pp=()=>S;
+S=newState();buildPads();
+resize();requestAnimationFrame(step);
+document.fonts&&document.fonts.ready.then(resize);
+})();
+</script>
+</body>
+</html>
