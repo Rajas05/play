@@ -52,8 +52,8 @@ body.touch .ctl{display:flex}
 .ctl button{border:0;border-radius:50%;width:84px;height:84px;background:rgba(230,237,242,.14);border:2px solid rgba(230,237,242,.25);color:var(--ink);font-size:30px;font-family:Archivo,sans-serif;font-weight:900;touch-action:none}
 .ctl button.on{background:rgba(242,182,0,.45);border-color:var(--y)}
 #cl{left:14px;gap:12px}#cr{right:14px;gap:12px}
-#cb{left:50%;transform:translateX(-50%)}
-#cb button{width:auto;border-radius:16px;height:64px;padding:0 20px;font-size:15px;letter-spacing:.06em;margin-top:20px}
+#cb{left:50%;transform:translateX(-50%);gap:8px}#bf{background:rgba(242,182,0,.22)!important;border-color:rgba(242,182,0,.6)!important}
+#cb button{width:auto;border-radius:16px;height:64px;padding:0 14px;font-size:14px;letter-spacing:.06em;margin-top:20px}
 #ch{right:26px;bottom:calc(112px + env(safe-area-inset-bottom))}#horn{width:58px;height:58px;font-size:22px}
 .ov{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(11,18,24,.9);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);overflow:auto}
 .ov[hidden]{display:none}
@@ -94,7 +94,7 @@ p{margin:0 0 14px;color:#C9D3DA;line-height:1.45;font-size:16px}
 <div id="task" hidden></div>
 <div id="prompt" hidden></div>
 <div class="ctl" id="cl"><button id="bl">◀</button></div>
-<div class="ctl" id="cb"><button id="bb">BRAKE</button></div>
+<div class="ctl" id="cb"><button id="bb">BRAKE</button><button id="bf">BOOST</button></div>
 <div class="ctl" id="cr"><button id="br">▶</button></div>
 <div class="ctl" id="ch"><button id="horn">📣</button></div>
 
@@ -111,7 +111,7 @@ p{margin:0 0 14px;color:#C9D3DA;line-height:1.45;font-size:16px}
       <li><span class="ic">🏁</span>Rival riders want the same orders. Beat them to the seller</li>
       <li><span class="ic">🐄</span>Dodge cows, potholes and slow autos</li>
     </ul>
-    <div class="keys" id="keys">← → to change lanes · ↓ to brake · ↑ to speed up · Space to honk</div>
+    <div class="keys" id="keys">← → change lanes · ↑ boost · ↓ brake · Space to honk</div>
     <button class="btn" id="go">Start shift</button>
     <div class="best" id="bestline"></div>
   </div>
@@ -141,7 +141,7 @@ p{margin:0 0 14px;color:#C9D3DA;line-height:1.45;font-size:16px}
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
 const TOUCH=matchMedia('(pointer:coarse)').matches;
-if(TOUCH){document.body.classList.add('touch');$('keys').textContent='◀ ▶ to change lanes · the scooter rides on its own · BRAKE to stop';}
+if(TOUCH){document.body.classList.add('touch');$('keys').textContent='◀ ▶ change lanes · BOOST to race · BRAKE to stop';}
 let W=0,H=0,DPR=1,Z=1;
 // road geometry (world units). y grows forward (up the screen)
 const FP=64,LW=92,NL=3,TW=FP*2+LW*NL; // footpath, lane width
@@ -152,16 +152,21 @@ addEventListener('resize',resize);resize();
 const rand=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
 function hash(n){const x=Math.sin(n*127.1+311.7)*43758.5453;return x-Math.floor(x)}
 const CRUISE=200,FAST=260;
-let S,running=false,last=0,keys={},touch={l:false,r:false,b:false};
+let S,running=false,last=0,keys={},touch={l:false,r:false,b:false,f:false};
 let best=0;try{best=+localStorage.getItem('ofd-best')||0}catch(e){}
 function newState(){
   const st={t:150,earn:0,del:0,ontime:0,crash:0,ratings:[],p:{x:laneX(1),y:0,v:0,stun:0,inv:0,tilt:0},
     obs:[],nextObs:520,bumps:[],nextBump:900,fx:[],shake:0,horn:0,order:null,ended:false};
   st.riv=[{name:'Rahul',col:'#3DDCC4',x:laneX(0),y:-150,v:CRUISE,earn:0,tx:laneX(0),bias:40,next:rand(14,22),chase:false,prog:0,lt:rand(2,4)},
     {name:'Sneha',col:'#FF8FC8',x:laneX(2),y:160,v:CRUISE,earn:0,tx:laneX(2),bias:-30,next:rand(18,26),chase:false,prog:0,lt:rand(2,4)}];
-  newPickup(st,420);st.order.first=true;return st;
+  newPickup(st,420);if(st.order.racer){st.order.racer.chase=false;st.order.claim=null;st.order.racer=null}st.order.first=true;return st;
 }
-function newPickup(st,ahead){const side=Math.random()<.5?-1:1;st.order={phase:'pick',side,y:st.p.y+ahead,prog:0,name:pick(['Asha Kirana','Sai Mobiles','Nisha Boutique','Om Electronics','Joshi Sweets','Kulkarni Books','Patil Hardware'])};clearNear(st,st.order.y)}
+function newPickup(st,ahead){const side=Math.random()<.5?-1:1;st.order={phase:'pick',side,y:st.p.y+Math.max(ahead,560),prog:0,name:pick(['Asha Kirana','Sai Mobiles','Nisha Boutique','Om Electronics','Joshi Sweets','Kulkarni Books','Patil Hardware'])};clearNear(st,st.order.y);
+  if(st.riv&&Math.random()<.8){const r=st.riv[Math.floor(Math.random()*st.riv.length)];
+    // line the rival up beside you: a fair race from here
+    r.y=st.p.y+rand(-45,10);r.v=st.p.v;
+    const myLane=Math.round((st.p.x-FP)/LW-.5);const free=[0,1,2].filter(l=>l!==myLane);const l=pick(free);if(Math.abs(r.x-st.p.x)<40){r.x=laneX(l)}r.tx=r.x;
+    st.order.claim=r.name;r.chase=true;r.prog=0;r.slow=Math.random()<.35;st.order.racer=r}}
 function newDrop(st){const side=Math.random()<.5?-1:1;const dist=rand(1100,1800);const eta=Math.round(dist/150+6);
   st.order={phase:'drop',side,y:st.p.y+dist,prog:0,eta,left:eta,pay:Math.round(40+dist/22)};clearNear(st,st.order.y)}
 function clearNear(st,y){st.obs=st.obs.filter(o=>Math.abs(o.y-y)>140||o.k==='veh')}
@@ -197,18 +202,17 @@ function rivals(dt){
     // stay in the race: rubber-band around the player
     let tv=CRUISE+r.bias*.5+(p.y+r.bias-r.y)*.12;tv=Math.max(140,Math.min(250,tv));
     r.lt-=dt;if(r.lt<=0&&!r.chase){r.lt=rand(2.5,5);r.tx=laneX(Math.floor(Math.random()*NL))}
-    if(o.phase==='pick'&&!o.claim&&!o.rolled?.[r.name]){const ahead=o.y-r.y;if(ahead>120&&ahead<560){o.rolled=o.rolled||{};o.rolled[r.name]=1;if(!o.first&&Math.random()<.45){o.claim=r.name;r.chase=true}}}
     if(r.chase&&(o.phase!=='pick'||o.claim!==r.name))r.chase=false;
-    if(r.chase){r.tx=o.side<0?laneX(0):laneX(2);if(o.y-r.y<230)tv=105}
+    if(r.chase){const dd=o.y-r.y;tv=dd>270?(r.slow?190:212):110;if(dd<520)r.tx=o.side<0?laneX(0):laneX(2)}
     if(laneBlocked(r.tx,r.y,170)){const opts=[0,1,2].map(laneX).filter(x=>!laneBlocked(x,r.y,170));if(opts.length)r.tx=opts.sort((a,b)=>Math.abs(a-r.x)-Math.abs(b-r.x))[0];else tv=Math.min(tv,90)}
-    r.v+=(tv-r.v)*Math.min(1,dt*1.5);r.y+=r.v*dt;const dx=r.tx-r.x;r.x+=Math.sign(dx)*Math.min(Math.abs(dx),150*dt);r.tilt=Math.sign(dx)*(Math.abs(dx)>3?.2:0);
+    r.v+=Math.max(-260*dt,Math.min(150*dt,tv-r.v));r.y+=r.v*dt;const dx=r.tx-r.x;r.x+=Math.sign(dx)*Math.min(Math.abs(dx),150*dt);r.tilt=Math.sign(dx)*(Math.abs(dx)>3?.2:0);
     // player bump (no penalty, just a nudge)
     if(Math.abs(r.x-p.x)<26&&Math.abs(r.y-p.y)<46){const push=(p.x<r.x?-1:1)*60*dt*4;p.x=Math.max(XMIN,Math.min(XMAX,p.x+push));r.x=Math.max(XMIN,Math.min(XMAX,r.x-push));p.v*=.92;if(!r.bt||r.bt<=0){r.bt=1;snd(160,.08,'square',.04);fx(p.x,p.y+40,'Watch it, '+r.name+'!','#E6EDF2')}}
     r.bt=Math.max(0,(r.bt||0)-dt);
     // steal the order
     if(r.chase){const edge=o.side<0?r.x<FP+LW*1.05:r.x>TW-FP-LW*1.05;
-      if(Math.abs(r.y-o.y)<70&&edge&&r.v<150)r.prog+=dt*2.2;else r.prog=Math.max(0,r.prog-dt);
-      if(r.prog>=1){r.prog=0;r.chase=false;const g=Math.round(rand(60,95));r.earn+=g;toast(`${r.name} grabbed your order!`,r.col);snd(200,.25,'sawtooth',.05,.7);fx(r.x,r.y+40,`${r.name} +₹${g}`,r.col);newPickup(S,rand(600,850))}
+      if(Math.abs(r.y-o.y)<70&&edge&&r.v<150)r.prog+=dt*(1.2+2.4*(1-r.v/150))*.7;else r.prog=Math.max(0,r.prog-dt);
+      if(r.prog>=1){r.prog=0;r.chase=false;const g=Math.round(rand(60,95));r.earn+=g;toast(`${r.name} grabbed your order!`,r.col);S.lost=(S.lost||0)+1;snd(200,.25,'sawtooth',.05,.7);fx(r.x,r.y+40,`${r.name} +₹${g}`,r.col);newPickup(S,rand(600,850))}
       else if(r.y>o.y+90)r.chase=false}
     // deliveries elsewhere keep the leaderboard moving
     r.next-=dt;if(r.next<=0){r.next=rand(17,26);r.earn+=Math.round(rand(50,85))}
@@ -217,7 +221,7 @@ function rivals(dt){
 function update(dt){
   const p=S.p;S.t-=dt;if(S.t<=0){S.t=0;end();return}
   let steer=0;if(keys.arrowleft||keys.a||touch.l)steer-=1;if(keys.arrowright||keys.d||touch.r)steer+=1;
-  const brake=keys.arrowdown||keys.s||touch.b,fast=keys.arrowup||keys.w;
+  const brake=keys.arrowdown||keys.s||touch.b,fast=keys.arrowup||keys.w||touch.f;
   const target=brake?0:fast?FAST:CRUISE;
   if(p.stun>0)p.stun-=dt;else{if(p.v<target)p.v=Math.min(target,p.v+(brake?0:150)*dt);else p.v=Math.max(target,p.v-(brake?380:120)*dt)}
   p.x+=steer*(160+p.v*.4)*dt*(p.stun>0?0:1);p.x=Math.max(XMIN,Math.min(XMAX,p.x));p.tilt+=(steer*.25-p.tilt)*Math.min(1,dt*10);
@@ -241,7 +245,7 @@ function update(dt){
   const o=S.order;const edge=o.side<0?p.x<FP+LW*1.05:p.x>TW-FP-LW*1.05;const near=Math.abs(p.y-o.y)<(o.phase==='pick'?70:80);
   if(o.phase==='pick'){
     if(near&&edge&&p.v<150){o.prog+=dt*(1.2+2.4*(1-p.v/150))}else o.prog=Math.max(0,o.prog-dt*1.5);
-    if(o.prog>=1){snd(660,.08,'square',.045,1.4);fx(p.x,p.y+40,'Parcel picked up!','#F2B600');newDrop(S)}
+    if(o.prog>=1){snd(660,.08,'square',.045,1.4);if(o.racer&&o.racer.chase){toast(`You beat ${o.racer.name}!`,'#F2B600');o.racer.chase=false;S.won=(S.won||0)+1}fx(p.x,p.y+40,'Parcel picked up!','#F2B600');newDrop(S)}
     else if(p.y>o.y+90){fx(p.x,p.y+40,'Missed the pickup','#FF9F59');snd(220,.15,'triangle',.05);newPickup(S,rand(650,900))}
   }else{
     o.left-=dt;
@@ -267,9 +271,12 @@ function hud(){
   const now=performance.now();if(now-lastHud>120){lastHud=now;
     $('lb').innerHTML=board().map((r,i)=>`<div class="${r.me?'me':''}"><span><i style="background:${r.col}"></i>${i+1}. ${r.name}</span><span>₹${r.earn}</span></div>`).join('');
     const el=$('task');el.classList.toggle('late',o.phase==='drop'&&o.left<0);
-    el.innerHTML=o.phase==='pick'?`<i style="background:#F2B600">🙋</i><div><b>Pick up · ${sideW} side</b><small>${o.name} · ${d}m ahead</small></div>`
+    const rc=o.phase==='pick'&&o.racer&&o.racer.chase?o.racer:null;const rd=rc?Math.max(0,Math.round((o.y-rc.y)/10)):0;
+    el.innerHTML=o.phase==='pick'?`<i style="background:#F2B600">🙋</i><div><b>Pick up · ${sideW} side</b><small>${o.name} · You ${d}m${rc?` · <span style="color:${rc.col}">${rc.name} ${rd}m</span>`:''}</small></div>${rc?`<i style="background:${rc.col};margin-left:4px">⚔️</i>`:''}`
       :`<i style="background:#3DDC97">🏠</i><div><b>Deliver · ${sideW} side</b><small>${d}m ahead · ${o.left>=0?'ETA '+Math.ceil(o.left)+'s':'LATE'} · ₹${o.pay}</small></div>`}
   let pr='';const near=Math.abs(p.y-o.y)<260&&o.y>p.y-80;const edge=o.side<0?p.x<FP+LW*1.05:p.x>TW-FP-LW*1.05;
+  const rc=o.phase==='pick'&&o.racer&&o.racer.chase?o.racer:null;
+  if(rc&&o.y-p.y>230)pr=rc.y>p.y?`${rc.name} is ahead! Hold ${TOUCH?'BOOST':'↑'} to catch up`:`You're ahead of ${rc.name}. Keep going!`;
   if(near&&!edge)pr=`Move to the ${o.side<0?'left':'right'} lane`;
   else if(near&&o.phase==='drop'&&p.v>70)pr='Brake! Stop in the green zone';
   else if(near&&o.phase==='pick'&&p.v>150)pr='Slow down to grab the parcel';
@@ -329,7 +336,7 @@ function draw(time){
     else if(b.k==='cow')cow(b);
     else vehicle(b.x,b.y,b.w,b.h,b.k==='park'?'car':b.v,b.c);
   }
-  for(const r of S.riv){if(r.y<yBot-60||r.y>yTop+60)continue;rider(r.x,r.y,r.tilt||0,r.col,true);txt(r.name,r.x,r.y+40,r.col,13,true);if(r.chase)txt('→ your order',r.x,r.y+56,'#E6EDF2',10,true)}
+  for(const r of S.riv){if(r.y<yBot-60||r.y>yTop+60)continue;rider(r.x,r.y,r.tilt||0,r.col,true);txt(r.name,r.x,r.y+40,r.col,13,true);if(r.chase)txt('⚔️ racing you',r.x,r.y+56,'#E6EDF2',11,true)}
   // player
   ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-p.tilt);if(p.inv>0&&Math.floor(time/90)%2)ctx.globalAlpha=.5;
   ctx.fillStyle='rgba(0,0,0,.35)';rr(-8,-22,20,46,9);ctx.fill();
@@ -385,7 +392,7 @@ addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
 addEventListener('blur',()=>{keys={};touch={l:false,r:false,b:false}});
 function hold(id,key){const el=$(id);const on=e=>{e.preventDefault();touch[key]=true;el.classList.add('on')},off=e=>{e.preventDefault();touch[key]=false;el.classList.remove('on')};
   el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('pointerleave',off)}
-hold('bl','l');hold('br','r');hold('bb','b');$('horn').addEventListener('pointerdown',e=>{e.preventDefault();horn()});
+hold('bl','l');hold('br','r');hold('bb','b');hold('bf','f');$('horn').addEventListener('pointerdown',e=>{e.preventDefault();horn()});
 $('bestline').textContent=best?`Your best: ₹${best}`:'One shift takes 2½ minutes.';
 try{$('pname').value=localStorage.getItem('ofd-name')||''}catch(x){}
 if(CH){$('chal').hidden=false;$('chal').innerHTML=`<b>${CH.name}</b> challenged you: earn more than <b>₹${CH.s}</b> in one shift.`;$('go').textContent='Accept challenge'}
